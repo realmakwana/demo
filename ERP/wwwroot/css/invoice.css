@@ -1,0 +1,92 @@
+/* Invoice Module Styles */
+
+/* Inline Item Entry Form */
+.inline-item-form {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.inline-form-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.inline-form-field {
+    flex: 1;
+    min-width: 150px;
+}
+
+.inline-form-action {
+    flex-shrink: 0;
+}
+
+/* Items Grid */
+.items-grid {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Invoice Totals */
+.invoice-totals {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.total-row:last-child {
+    border-bottom: none;
+}
+
+.total-final {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 2px solid #1e40af;
+    font-size: 18px;
+    color: #1e40af;
+}
+
+/* Form Section */
+.form-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 32px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 2px dashed #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .inline-form-row {
+        flex-direction: column;
+    }
+
+    .inline-form-field {
+        width: 100%;
+        max-width: none !important;
+    }
+
+    .invoice-totals {
+        max-width: 100% !important;
+    }
+}

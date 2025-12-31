@@ -1,0 +1,214 @@
+@typeparam THeader where THeader : class, new()
+@typeparam TLineItem where TLineItem : class, new()
+@using TransportERP.Models.Helpers
+@using System.Reflection
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.DropDowns
+@using Microsoft.AspNetCore.Components.Rendering
+@using ERP.Components.Shared.UI
+
+<Breadcrumb Items="@breadcrumbItems" />
+
+@if (isAccessDenied)
+{
+    <div class="access-denied-container fade-in">
+        <div class="access-denied-content">
+            <div class="access-denied-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view this transaction. Please contact your administrator.</p>
+            <SfButton CssClass="e-primary" OnClick="@(() => NavigationManager.NavigateTo("/"))">Back to Dashboard</SfButton>
+        </div>
+    </div>
+
+    <style>
+        .access-denied-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+        .access-denied-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        .access-denied-icon {
+            color: #ef4444;
+            margin-bottom: 1.5rem;
+        }
+        .access-denied-content h2 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .access-denied-content p {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+    </style>
+}
+else if (!showForm)
+{
+    <!-- GRID VIEW -->
+    <div class="grid-container fade-in">
+        <div class="grid-header">
+            <div class="grid-title-container">
+                <h3 class="grid-title">@GridTitle</h3>
+                @if (!string.IsNullOrEmpty(HelpText))
+                {
+                    <InfoTooltip Text="@HelpText" />
+                }
+            </div>
+            <div class="grid-actions">
+                @if (currentRights == null || currentRights.IsAdd)
+                {
+                    <SfButton CssClass="e-primary" IconCss="bi bi-plus-lg" OnClick="ShowAddForm">Add New @Title</SfButton>
+                }
+                @if (currentRights == null || currentRights.IsExport)
+                {
+                    <SfButton CssClass="e-success" IconCss="bi bi-file-earmark-excel" OnClick="@(() => ShowExportDialog("excel"))" title="Export to Excel">Excel</SfButton>
+                    <SfButton CssClass="e-danger" IconCss="bi bi-file-earmark-pdf" OnClick="@(() => ShowExportDialog("pdf"))" title="Export to PDF">PDF</SfButton>
+                }
+            </div>
+        </div>
+
+        <SfGrid @ref="grid"
+                DataSource="@DataSource"
+                AllowPaging="true"
+                AllowSorting="true"
+                AllowFiltering="true"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                Toolbar="@(new List<string>() { "Search" })">
+            <GridPageSettings PageSize="10"></GridPageSettings>
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+            <GridColumns>
+                @GridColumns
+                
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+                    <Template>
+                        @{
+                            var item = context as THeader;
+                            <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                                @if (currentRights == null || currentRights.IsEdit)
+                                {
+                                    <SfButton CssClass="action-icon-btn edit-btn" 
+                                              IconCss="bi bi-pencil" 
+                                              IsPrimary="false"
+                                              @onclick="() => EditItem(item!)"
+                                              title="Edit">
+                                    </SfButton>
+                                }
+                                @if (currentRights == null || currentRights.IsDelete)
+                                {
+                                    <SfButton CssClass="action-icon-btn delete-btn" 
+                                              IconCss="bi bi-trash" 
+                                              IsPrimary="false"
+                                              @onclick="() => DeleteItem(item!)"
+                                              title="Delete">
+                                    </SfButton>
+                                }
+                            </div>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+    </div>
+}
+else
+{
+    <!-- FORM VIEW -->
+    <div class="form-container fade-in">
+        <div class="form-header">
+            <h3 class="form-title">@(isEditMode ? $"Update {Title}" : $"Create New {Title}")</h3>
+        </div>
+
+        <!-- Header Details Section -->
+        <div class="form-body">
+            <EditForm Model="@currentHeader" @ref="headerForm">
+                <DataAnnotationsValidator />
+                <LiveValidator />
+                @HeaderFormContent
+            </EditForm>
+        </div>
+
+        <!-- Line Items Section -->
+        <div class="form-section">
+            <h4 class="section-title">@LineItemsTitle</h4>
+            
+            <!-- Inline Item Entry Form -->
+            <div class="inline-item-form">
+                @LineItemFormContent
+                <div style="margin-top: 16px;">
+                    <SfButton CssClass="e-success" IconCss="bi bi-plus-lg" @onclick="AddLineItem">Add Item</SfButton>
+                </div>
+            </div>
+
+            <!-- Items Grid -->
+            @if (currentLineItems.Any())
+            {
+                <div class="items-grid" style="margin-top: 16px;">
+                    <SfGrid DataSource="@currentLineItems" AllowPaging="false">
+                        <GridColumns>
+                            @LineItemGridColumns
+                            
+                            <GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var item = context as TLineItem;
+                                        <SfButton CssClass="action-icon-btn delete-btn" 
+                                                  IconCss="bi bi-trash" 
+                                                  IsPrimary="false"
+                                                  @onclick="() => RemoveLineItem(item!)"
+                                                  title="Remove">
+                                        </SfButton>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            }
+            else
+            {
+            <div class="empty-state">
+                <p>No items added yet. Use the form above to add items.</p>
+            </div>
+            }
+
+            <!-- Totals Section (Optional) -->
+            @if (TotalsContent != null)
+            {
+                <div style="margin-top: 24px;">
+                    @TotalsContent
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- STICKY FOOTER -->
+    <div class="sticky-footer">
+        <SfButton CssClass="e-outline" OnClick="CancelForm">Cancel</SfButton>
+        <SfButton CssClass="e-primary" OnClick="SaveItem" IconCss="bi bi-save">Save @Title</SfButton>
+    </div>
+}
+
+<ConfirmationDialog @ref="confirmDialog" />
+
+<ExportDialog @ref="exportDialog" 
+              TotalRecords="@TotalRecordsInDatabase" 
+              DisplayedRecords="@GetDisplayedRecordsCount()"
+              OnExport="@HandleExport" />
+
+<LoadingSpinner IsLoading="@isLoading" LoadingText="Loading data..." />

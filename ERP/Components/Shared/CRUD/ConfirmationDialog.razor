@@ -1,0 +1,174 @@
+@inject IJSRuntime JSRuntime
+
+@if (isVisible)
+{
+    <div class="confirm-overlay fade-in">
+        <div class="confirm-box scale-in">
+            <div class="confirm-icon-wrapper">
+                <div class="confirm-icon">!</div>
+            </div>
+            <h3 class="confirm-title">Are you sure?</h3>
+            <p class="confirm-message">@message</p>
+            <div class="confirm-actions">
+                <button class="btn-cancel" @onclick="() => OnConfirmationChange(false)">Cancel</button>
+                <button class="btn-confirm" @onclick="() => OnConfirmationChange(true)">Yes, delete it!</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isVisible;
+    private string message = "You won't be able to revert this!";
+    private TaskCompletionSource<bool> tcs;
+
+    public Task<bool> Show(string msg = "")
+    {
+        if (!string.IsNullOrEmpty(msg))
+        {
+            message = msg;
+        }
+        else
+        {
+            message = "You won't be able to revert this!";
+        }
+
+        isVisible = true;
+        tcs = new TaskCompletionSource<bool>();
+        StateHasChanged();
+        return tcs.Task;
+    }
+
+    private void OnConfirmationChange(bool confirmed)
+    {
+        isVisible = false;
+        tcs.SetResult(confirmed);
+        StateHasChanged();
+    }
+}
+
+<style>
+    .confirm-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(2px);
+    }
+
+    .confirm-box {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .confirm-icon-wrapper {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .confirm-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 4px solid #fecaca; /* Red-200 */
+        color: #ef4444; /* Red-500 */
+        font-size: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 300;
+    }
+
+    .confirm-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 10px 0;
+    }
+
+    .confirm-message {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0 0 24px 0;
+    }
+
+    .confirm-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .btn-cancel {
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        background-color: #6b7280;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #4b5563;
+    }
+
+    .btn-confirm {
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        background-color: #ef4444;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-confirm:hover {
+        background-color: #dc2626;
+    }
+
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .scale-in {
+        animation: scaleIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes scaleIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Dark Mode */
+    :root[data-theme='dark'] .confirm-box {
+        background: #1e293b;
+    }
+    :root[data-theme='dark'] .confirm-title {
+        color: white;
+    }
+    :root[data-theme='dark'] .confirm-message {
+        color: #9ca3af;
+    }
+</style>

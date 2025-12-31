@@ -1,0 +1,212 @@
+@typeparam TEntity where TEntity : class, new()
+@using TransportERP.Models.Helpers
+@using System.Reflection
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.DropDowns
+@using Microsoft.AspNetCore.Components.Rendering
+@using ERP.Components.Shared.UI
+
+<Breadcrumb Items="@breadcrumbItems" />
+
+@if (isAccessDenied)
+{
+    <div class="access-denied-container fade-in">
+        <div class="access-denied-content">
+            <div class="access-denied-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view this module. Please contact your administrator.</p>
+            <SfButton CssClass="e-primary" OnClick="@(() => NavigationManager.NavigateTo("/"))">Back to Dashboard</SfButton>
+        </div>
+    </div>
+
+    <style>
+        .access-denied-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+        .access-denied-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        .access-denied-icon {
+            color: #ef4444;
+            margin-bottom: 1.5rem;
+        }
+        .access-denied-content h2 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .access-denied-content p {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+    </style>
+}
+else if (!showForm)
+{
+    <!-- GRID VIEW -->
+    <div class="grid-container fade-in">
+        <div class="grid-header">
+            <div class="grid-title-container">
+                <h3 class="grid-title">@GridTitle</h3>
+                @if (!string.IsNullOrEmpty(HelpText))
+                {
+                    <InfoTooltip Text="@HelpText" />
+                }
+            </div>
+            <div class="grid-actions">
+                @if (currentRights == null || currentRights.IsAdd)
+                {
+                    <SfButton CssClass="e-primary" IconCss="bi bi-plus-lg" OnClick="@((args) => ShowAddForm())">Add New @Title</SfButton>
+                }
+                @if (currentRights == null || currentRights.IsExport)
+                {
+                    <SfButton CssClass="e-success" IconCss="bi bi-file-earmark-excel" OnClick="@((args) => ShowExportDialog("excel"))" title="Export to Excel">Excel</SfButton>
+                    <SfButton CssClass="e-danger" IconCss="bi bi-file-earmark-pdf" OnClick="@((args) => ShowExportDialog("pdf"))" title="Export to PDF">PDF</SfButton>
+                }
+            </div>
+        </div>
+
+
+        <SfGrid @ref="grid"
+                DataSource="@DataSource"
+                AllowPaging="true"
+                AllowSorting="true"
+                AllowFiltering="true"
+                AllowExcelExport="true"
+                AllowPdfExport="true"
+                Toolbar="@(new List<string>() { "Search" })">
+            <GridPageSettings PageSize="10"></GridPageSettings>
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+            <GridColumns>
+                @foreach (var field in fieldMetadata.Where(f => f.ShowInGrid))
+                {
+                    if (!string.IsNullOrEmpty(field.GridTemplate))
+                    {
+                        <GridColumn Field="@field.PropertyName" 
+                                    HeaderText="@field.Label" 
+                                    Width="@field.GridWidth"
+                                    Format="@field.Format">
+                            <Template>
+                                @GridTemplateContent?.Invoke(field.GridTemplate, context)
+                            </Template>
+                        </GridColumn>
+                    }
+                    else
+                    {
+                        <GridColumn Field="@field.PropertyName" 
+                                    HeaderText="@field.Label" 
+                                    Width="@field.GridWidth"
+                                    Format="@field.Format">
+                        </GridColumn>
+                    }
+                }
+                
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+                    <Template>
+                        @{
+                            var item = context as TEntity;
+                            <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                                @if (currentRights == null || currentRights.IsEdit)
+                                {
+                                    <SfButton CssClass="action-icon-btn edit-btn" 
+                                              IconCss="bi bi-pencil" 
+                                              IsPrimary="false"
+                                              OnClick="@((args) => EditItem(item!))"
+                                              title="Edit">
+                                    </SfButton>
+                                }
+                                @if (currentRights == null || currentRights.IsDelete)
+                                {
+                                    <SfButton CssClass="action-icon-btn delete-btn" 
+                                              IconCss="bi bi-trash" 
+                                              IsPrimary="false"
+                                              OnClick="@((args) => DeleteItem(item!))"
+                                              title="Delete">
+                                    </SfButton>
+                                }
+                                @if (CustomActionsTemplate != null)
+                                {
+                                    @CustomActionsTemplate(item!)
+                                }
+                            </div>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+    </div>
+}
+else
+{
+    <!-- FORM VIEW -->
+    <div class="form-container fade-in">
+        <EditForm Model="@currentItem" OnValidSubmit="SaveItem" @ref="editForm">
+            <DataAnnotationsValidator />
+            <LiveValidator />
+
+            <div class="form-header">
+                <h3 class="form-title">@(isEditMode ? $"Update {Title}" : $"Create New {Title}")</h3>
+            </div>
+
+            <div class="form-body">
+                @{
+                    var formFields = fieldMetadata.Where(f => !f.HideInForm).ToList();
+                    for (int i = 0; i < formFields.Count; i += 2)
+                    {
+                        <div class="form-row">
+                            @for (int j = 0; j < 2 && (i + j) < formFields.Count; j++)
+                            {
+                                var field = formFields[i + j];
+                                <div class="form-group">
+                                    @RenderFormField(field)
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </EditForm>
+    </div>
+
+    <!-- STICKY FOOTER -->
+    <div class="sticky-footer">
+        <SfButton CssClass="e-outline" OnClick="@((args) => CancelForm())">Cancel</SfButton>
+        <SfButton CssClass="e-primary" OnClick="@((args) => SaveItem())" IconCss="bi bi-save">Save changes</SfButton>
+    </div>
+}
+
+<ConfirmationDialog @ref="confirmDialog" />
+
+<!-- Generic Modal for Custom Content (e.g. Details View) -->
+@if (ModalContent != null)
+{
+    <SfModal @ref="genericModal" Title="@ModalTitle" Width="@ModalWidth">
+        <ChildContent>
+            @if (selectedModalItem != null)
+            {
+                @ModalContent(selectedModalItem)
+            }
+        </ChildContent>
+    </SfModal>
+}
+
+<ExportDialog @ref="exportDialog" 
+              TotalRecords="@DataSource.Count" 
+              DisplayedRecords="@GetDisplayedRecordsCount()"
+              OnExport="@HandleExport" />
+

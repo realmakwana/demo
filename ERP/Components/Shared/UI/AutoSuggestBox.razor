@@ -1,0 +1,17 @@
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Data
+
+<div class="auto-suggest-wrapper">
+    <SfAutoComplete TValue="string" TItem="string" Placeholder="@Placeholder" FloatLabelType="@FloatLabelType"
+                    @ref="AutoCompleteObj"
+                    Value="@Value"
+                    ValueChanged="@HandleValueChanged"
+                    DataSource="@_currentData"
+                    MinLength="3"
+                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                    ShowPopupButton="false"
+                    CssClass="@(string.IsNullOrEmpty(CssClass) ? "e-outline" : CssClass + " e-outline")"
+                    ValidateOnInput="true">
+        <AutoCompleteEvents TValue="string" TItem="string" Filtering="@OnFiltering"></AutoCompleteEvents>
+    </SfAutoComplete>
+</div>

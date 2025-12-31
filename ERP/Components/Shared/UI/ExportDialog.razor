@@ -1,0 +1,222 @@
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+
+<SfDialog @bind-Visible="@isVisible" Width="650px" IsModal="true" ShowCloseIcon="true">
+    <DialogTemplates>
+        <Header>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="@(selectedFormat == "excel" ? "bi bi-file-earmark-excel" : "bi bi-file-earmark-pdf")" 
+                   style="font-size: 20px; color: @(selectedFormat == "excel" ? "#28a745" : "#dc3545");"></i>
+                <span>Export to @(selectedFormat == "excel" ? "Excel" : "PDF")</span>
+            </div>
+        </Header>
+        <Content>
+            <div class="export-dialog-content">
+                <div class="export-info">
+                    <p><strong>Total Records Available:</strong> @TotalRecords</p>
+                    <p><strong>Currently Displayed:</strong> @DisplayedRecords</p>
+                </div>
+
+                <div class="export-options">
+                    <div class="export-option">
+                        <input type="radio" 
+                               id="exportCurrent" 
+                               name="exportType" 
+                               value="current" 
+                               checked="@(exportType == ExportType.CurrentPage)"
+                               @onchange="@(() => exportType = ExportType.CurrentPage)" />
+                        <label for="exportCurrent">Export Current Page Only (@DisplayedRecords records)</label>
+                    </div>
+
+                    <div class="export-option">
+                        <input type="radio" 
+                               id="exportAll" 
+                               name="exportType" 
+                               value="all"
+                               checked="@(exportType == ExportType.AllRecords)"
+                               @onchange="@(() => exportType = ExportType.AllRecords)" />
+                        <label for="exportAll">Export All Records (@TotalRecords records)</label>
+                    </div>
+
+                    <div class="export-option">
+                        <input type="radio" 
+                               id="exportCustom" 
+                               name="exportType" 
+                               value="custom"
+                               checked="@(exportType == ExportType.CustomRange)"
+                               @onchange="@(() => exportType = ExportType.CustomRange)" />
+                        <label for="exportCustom">Export Custom Range</label>
+                    </div>
+
+                    @if (exportType == ExportType.CustomRange)
+                    {
+                        <div class="custom-range-inputs">
+                            <div class="range-input-group">
+                                <label>From Record:</label>
+                                <SfNumericTextBox @bind-Value="fromRecord" 
+                                                  Min="1" 
+                                                  Max="@TotalRecords"
+                                                  Format="N0"
+                                                  ShowSpinButton="true"
+                                                  CssClass="e-outline" />
+                            </div>
+                            <div class="range-input-group">
+                                <label>To Record:</label>
+                                <SfNumericTextBox @bind-Value="toRecord" 
+                                                  Min="1" 
+                                                  Max="@TotalRecords"
+                                                  Format="N0"
+                                                  ShowSpinButton="true"
+                                                  CssClass="e-outline" />
+                            </div>
+                            <p class="range-info">Will export @GetCustomRangeCount() records</p>
+                        </div>
+                    }
+                </div>
+
+                @if (AvailableColumns != null && AvailableColumns.Any())
+                {
+                    <div class="column-selection-section">
+                        <div class="section-header">
+                            <h4>Select Columns to Export</h4>
+                            <div class="selection-actions">
+                                <button type="button" class="link-button" @onclick="SelectAllColumns">Select All</button>
+                                <span class="separator">|</span>
+                                <button type="button" class="link-button" @onclick="DeselectAllColumns">Deselect All</button>
+                            </div>
+                        </div>
+                        <div class="columns-grid">
+                            @foreach (var column in AvailableColumns)
+                            {
+                                <div class="column-checkbox-item">
+                                    <SfCheckBox @bind-Checked="column.IsSelected" 
+                                                Label="@column.Label"
+                                                TChecked="bool" />
+                                </div>
+                            }
+                        </div>
+                        <p class="selection-info">@GetSelectedColumnsCount() of @AvailableColumns.Count columns selected</p>
+                    </div>
+                }
+            </div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Cancel" OnClick="@Cancel" CssClass="e-outline" />
+        <DialogButton Content="Export" OnClick="@ConfirmExport" IsPrimary="true" IconCss="bi bi-download" />
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    private bool isVisible = false;
+    private ExportType exportType = ExportType.AllRecords;
+    private string selectedFormat = "excel";
+    private int fromRecord = 1;
+    private int toRecord = 10;
+
+    [Parameter] public int TotalRecords { get; set; }
+    [Parameter] public int DisplayedRecords { get; set; }
+    [Parameter] public List<ColumnInfo>? AvailableColumns { get; set; }
+    [Parameter] public EventCallback<ExportOptions> OnExport { get; set; }
+
+    public enum ExportType
+    {
+        CurrentPage,
+        AllRecords,
+        CustomRange
+    }
+
+    public class ColumnInfo
+    {
+        public string PropertyName { get; set; } = "";
+        public string Label { get; set; } = "";
+        public bool IsSelected { get; set; }
+        public bool IsVisibleInGrid { get; set; }
+    }
+
+    public class ExportOptions
+    {
+        public ExportType Type { get; set; }
+        public string Format { get; set; } = "excel";
+        public int FromRecord { get; set; }
+        public int ToRecord { get; set; }
+        public List<string> SelectedColumns { get; set; } = new();
+    }
+
+    protected override void OnParametersSet()
+    {
+        toRecord = TotalRecords;
+    }
+
+    public void Show(string format = "excel")
+    {
+        exportType = ExportType.AllRecords;
+        selectedFormat = format;
+        fromRecord = 1;
+        toRecord = TotalRecords;
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    private int GetCustomRangeCount()
+    {
+        if (toRecord >= fromRecord)
+            return toRecord - fromRecord + 1;
+        return 0;
+    }
+
+    private int GetSelectedColumnsCount()
+    {
+        return AvailableColumns?.Count(c => c.IsSelected) ?? 0;
+    }
+
+    private void SelectAllColumns()
+    {
+        if (AvailableColumns != null)
+        {
+            foreach (var column in AvailableColumns)
+            {
+                column.IsSelected = true;
+            }
+            StateHasChanged();
+        }
+    }
+
+    private void DeselectAllColumns()
+    {
+        if (AvailableColumns != null)
+        {
+            foreach (var column in AvailableColumns)
+            {
+                column.IsSelected = false;
+            }
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmExport()
+    {
+        var selectedColumns = AvailableColumns?
+            .Where(c => c.IsSelected)
+            .Select(c => c.PropertyName)
+            .ToList() ?? new List<string>();
+
+        var options = new ExportOptions
+        {
+            Type = exportType,
+            Format = selectedFormat,
+            FromRecord = fromRecord,
+            ToRecord = toRecord,
+            SelectedColumns = selectedColumns
+        };
+
+        await OnExport.InvokeAsync(options);
+        isVisible = false;
+    }
+
+    private void Cancel()
+    {
+        isVisible = false;
+    }
+}

@@ -1,0 +1,14 @@
+@page "/users"
+@using TransportERP.Models.ViewModels
+
+<PageTitle>Users - Transport ERP</PageTitle>
+
+<MasterPage TEntity="UserViewModel"
+              Title="User"
+              Subtitle="Manage system users and their roles"
+              GridTitle="All Users"
+              HelpText="This module allows you to manage system users, assign roles, and control access permissions across the ERP system."
+              DataSource="@users"
+              OnSave="SaveUser"
+              OnDelete="DeleteUser"
+              GridTemplateContent="RenderGridTemplate" />

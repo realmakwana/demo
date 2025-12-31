@@ -1,0 +1,41 @@
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Target="#main-content" Width="@Width" IsModal="true" @bind-Visible="@Visible" ShowCloseIcon="true" ZIndex="1000">
+    <DialogTemplates>
+        <Header> @Title </Header>
+        <Content>
+            @ChildContent
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        @if (FooterContent != null)
+        {
+            @FooterContent
+        }
+        else
+        {
+            <DialogButton Content="Close" CssClass="e-outline" OnClick="@Close" />
+        }
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Details";
+    [Parameter] public string Width { get; set; } = "70%";
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+
+    private async Task Close()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(Visible);
+    }
+
+    public void Show()
+    {
+        Visible = true;
+        StateHasChanged();
+    }
+}

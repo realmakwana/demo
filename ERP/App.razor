@@ -1,0 +1,92 @@
+﻿@inject AuthService AuthService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        @if (isCheckingAuth)
+        {
+            <div class="initial-loading">
+                <LoadingSpinner IsLoading="true" LoadingText="Verifying session..." />
+            </div>
+        }
+        else if (IsAuthenticatedOrLoginPage(routeData))
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Components.Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        }
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(Components.Layout.MainLayout)">
+            <div style="text-align: center; padding: 4rem;">
+                <h1>404 - Page Not Found</h1>
+                <p>Sorry, there's nothing at this address.</p>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+<style>
+    .initial-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+        background: #0f172a;
+        color: white;
+    }
+</style>
+
+@code {
+    private bool isCheckingAuth = true;
+
+    protected override void OnInitialized()
+    {
+        AuthService.OnAuthStateChanged += HandleAuthStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Small delay to allow JS interop for ProtectedLocalStorage
+            await AuthService.CheckAuthStatus();
+            isCheckingAuth = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleAuthStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsAuthenticatedOrLoginPage(RouteData routeData)
+    {
+        var path = routeData.PageType.GetCustomAttributes(typeof(RouteAttribute), false)
+            .Cast<RouteAttribute>()
+            .FirstOrDefault()?.Template ?? "";
+
+        // Allow access to login page
+        if (path == "/login")
+        {
+            return true;
+        }
+
+        // Check if authenticated
+        if (!AuthService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= HandleAuthStateChanged;
+    }
+}

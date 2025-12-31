@@ -1,0 +1,170 @@
+@using TransportERP.Models.Helpers
+
+<div class="sidebar @(IsCollapsed ? "collapsed" : "") @(IsMobileOpen ? "open" : "")">
+    <div class="sidebar-header">
+        <div class="sidebar-logo-container">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar-logo-svg">
+                <path d="M16 11L12.7 7.4C12.4 7.1 12 7 11.6 7H5.2C4.3 7 3.4 7.7 3.3 8.6L2.1 11.6C2 11.9 2 12.1 2 12.4V16C2 17.1 2.9 18 4 18H5C5 19.1 5.9 20 7 20C8.1 20 9 19.1 9 18H15C15 19.1 15.9 20 17 20C18.1 20 19 19.1 19 18H20C21.1 18 22 17.1 22 16V12.8C22 12.4 21.9 12 21.6 11.7L19.4 9.5C19 9.1 18.5 8.9 18 8.9H16V11Z" fill="white"/>
+                <circle cx="7" cy="18" r="1.5" fill="#1e40af"/>
+                <circle cx="17" cy="18" r="1.5" fill="#1e40af"/>
+                <path d="M5 11H16V9H6L5 11Z" fill="rgba(255,255,255,0.2)"/>
+            </svg>
+        </div>
+        @if (!IsCollapsed)
+        {
+            <div class="sidebar-title">Transport ERP</div>
+        }
+        
+        @* Mobile Close Button *@
+        <button class="mobile-close-btn" @onclick="OnCloseMobileMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="sidebar-menu">
+        @if (isLoading)
+        {
+            <div class="p-4 text-center">
+                <div class="spinner-border spinner-border-sm text-light" role="status"></div>
+            </div>
+        }
+        else
+        {
+            @* Recursively render menus *@
+            @foreach (var menu in menus.Where(m => m.ParentMenuID == 0).OrderBy(m => m.Sequence))
+            {
+                var subMenus = menus.Where(m => m.ParentMenuID == menu.MenuID).OrderBy(m => m.Sequence).ToList();
+                var hasSubmenus = subMenus.Any();
+
+                if (menu.MenuUrl == null && !hasSubmenus)
+                {
+                    @* This is likely a group title *@
+                    <div class="menu-group-title">@menu.MenuDispName</div>
+                }
+                else if (hasSubmenus)
+                {
+                    @* Menu with Submenu *@
+                    <div class="menu-item @(IsCollapsed ? "menu-item-with-submenu" : "") @(IsSubmenuOpen(menu.MenuID) && !IsCollapsed ? "expanded" : "") @GetParentActiveClass(menu.MenuID)" @onclick='() => ToggleSubmenu(menu.MenuID)'>
+                        <div class="menu-item-icon">
+                            <i class="@IconHelper.GetIcon(menu.ClassName)"></i>
+                        </div>
+                        <span>@menu.MenuDispName</span>
+
+                        @if (!IsCollapsed)
+                        {
+                            <div class="menu-arrow @(IsSubmenuOpen(menu.MenuID) ? "rotated" : "")">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        }
+
+                        @if (IsCollapsed)
+                        {
+                            <div class="hover-submenu">
+                                <div class="submenu-header">@menu.MenuDispName</div>
+                                @foreach (var sub in subMenus)
+                                {
+                                    <div class="submenu-item @GetActiveClass(sub.MenuUrl)" @onclick='() => Navigate(sub.MenuUrl)' @onclick:stopPropagation="true">
+                                        <span>@sub.MenuDispName</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @* Inline Accordion Submenu *@
+                    @if (!IsCollapsed && IsSubmenuOpen(menu.MenuID))
+                    {
+                        <div class="inline-submenu">
+                            @foreach (var sub in subMenus)
+                            {
+                                var subHasChildren = menus.Any(m => m.ParentMenuID == sub.MenuID);
+                                
+                                @if (subHasChildren)
+                                {
+                                    @* Nested submenu with children *@
+                                    <div class="inline-submenu-item @GetParentActiveClass(sub.MenuID) @(IsSubmenuOpen(sub.MenuID) ? "expanded" : "")" 
+                                         @onclick='() => ToggleSubmenu(sub.MenuID)' 
+                                         @onclick:stopPropagation="true">
+                                        <i class="@IconHelper.GetIcon(sub.ClassName)" style="margin-right: 8px; font-size: 14px;"></i>
+                                        <span>@sub.MenuDispName</span>
+                                        <div class="menu-arrow @(IsSubmenuOpen(sub.MenuID) ? "rotated" : "")" style="margin-left: auto;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    @* Render sub-submenus *@
+                                    @if (IsSubmenuOpen(sub.MenuID))
+                                    {
+                                        var subSubMenus = menus.Where(m => m.ParentMenuID == sub.MenuID).OrderBy(m => m.Sequence);
+                                        <div class="inline-sub-submenu">
+                                            @foreach (var subSub in subSubMenus)
+                                            {
+                                                <div class="inline-submenu-item @GetActiveClass(subSub.MenuUrl)" 
+                                                     style="padding-left: 74px"
+                                                     @onclick='() => Navigate(subSub.MenuUrl)' 
+                                                     @onclick:stopPropagation="true">
+                                                    <i class="@IconHelper.GetIcon(subSub.ClassName)" style="margin-right: 8px; font-size: 14px;"></i>
+                                                    <span>@subSub.MenuDispName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    @* Final menu item (no children) *@
+                                    <div class="inline-submenu-item @GetActiveClass(sub.MenuUrl)" 
+                                         @onclick='() => Navigate(sub.MenuUrl)' 
+                                         @onclick:stopPropagation="true">
+                                        <i class="@IconHelper.GetIcon(sub.ClassName)" style="margin-right: 8px; font-size: 14px;"></i>
+                                        <span>@sub.MenuDispName</span>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    @* Regular Menu Item *@
+                    <div class="menu-item @GetActiveClass(menu.MenuUrl)" @onclick='() => Navigate(menu.MenuUrl)'>
+                        <div class="menu-item-icon">
+                            <i class="@IconHelper.GetIcon(menu.ClassName)"></i>
+                        </div>
+                        <span>@menu.MenuDispName</span>
+                        @if (IsCollapsed)
+                        {
+                            <div class="simple-tooltip">@menu.MenuDispName</div>
+                        }
+                    </div>
+                }
+            }
+        }
+    </div>
+
+    @* Toggle Button at Bottom for Desktop *@
+    <div class="sidebar-footer">
+        <button class="sidebar-toggle-bottom" @onclick="OnToggleSidebar" title="@(IsCollapsed ? "Expand Sidebar" : "Collapse Sidebar")">
+            @if (IsCollapsed)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            }
+            else
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span style="margin-left: 8px;">Collapse Menu</span>
+            }
+        </button>
+    </div>
+</div>

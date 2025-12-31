@@ -1,0 +1,110 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@namespace ERP.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/theme.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="css/invoice.css" rel="stylesheet" />
+    <link id="syncfusion-theme" href="https://cdn.syncfusion.com/blazor/32.1.19/styles/material3.css" rel="stylesheet" />
+
+    <link href="ERP.styles.css" rel="stylesheet" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <script src="theme.js"></script>
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <div id="blazor-error-ui" style="display: none;">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="https://cdn.syncfusion.com/blazor/32.1.19/syncfusion-blazor.min.js" type="text/javascript"></script>
+
+    <script>
+        // Check for saved theme preference or system preference
+        function getInitialTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // Apply theme immediately
+        const theme = getInitialTheme();
+        document.documentElement.setAttribute('data-theme', theme);
+        document.addEventListener('DOMContentLoaded', () => updateSyncfusionTheme(theme));
+
+        // JS Interop functions
+        window.isDarkMode = () => {
+            return document.documentElement.getAttribute('data-theme') === 'dark';
+        };
+
+        window.setTheme = (theme) => {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateSyncfusionTheme(theme);
+        };
+
+        window.toggleTheme = async (theme, x, y) => {
+            // Fallback for browsers without View Transition API
+            if (!document.startViewTransition) {
+                setTheme(theme);
+                return;
+            }
+
+            const root = document.documentElement;
+            // Pass click coordinates to CSS
+            root.style.setProperty('--clip-x', x + 'px');
+            root.style.setProperty('--clip-y', y + 'px');
+
+            // Native View Transition
+            const transition = document.startViewTransition(() => {
+                setTheme(theme);
+            });
+
+            await transition.finished;
+        };
+
+        function updateSyncfusionTheme(theme) {
+            const syncfusionLink = document.getElementById('syncfusion-theme');
+            if (syncfusionLink) {
+                const newHref = theme === 'dark' 
+                    ? 'https://cdn.syncfusion.com/blazor/32.1.19/styles/material3-dark.css' 
+                    : 'https://cdn.syncfusion.com/blazor/32.1.19/styles/material3.css';
+                syncfusionLink.setAttribute('href', newHref);
+            }
+        }
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('PWA Service Worker Registered'))
+                .catch(err => console.log('PWA Service Worker Registration Failed', err));
+        }
+    </script>
+    <style>
+        /* View Transition Styles handled globally in theme.css or equivalent */
+    </style>
+</body>
+</html>

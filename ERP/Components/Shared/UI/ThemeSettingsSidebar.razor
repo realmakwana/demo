@@ -1,0 +1,247 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="theme-settings-overlay @(IsVisible ? "visible" : "")" @onclick="Close"></div>
+<div class="theme-settings-sidebar @(IsVisible ? "open" : "")">
+    <div class="theme-settings-header">
+        <h3 class="theme-settings-title">Theme Settings</h3>
+        <button class="close-btn" @onclick="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="theme-settings-content">
+        <div class="settings-section">
+            <h4 class="settings-subtitle">Primary Color</h4>
+            <div class="color-grid">
+                @foreach (var color in themeColors)
+                {
+                    <div class="color-option @(selectedThemeColor == color.Value ? "selected" : "")" 
+                         @onclick="() => SelectThemeColor(color.Value)"
+                         title="@color.Name">
+                        <div class="color-circle" style="background: @color.Value;">
+                            @if (selectedThemeColor == color.Value)
+                            {
+                                <i class="bi bi-check-lg" style="color: white; font-size: 14px;"></i>
+                            }
+                        </div>
+                        <span class="color-name">@color.Name</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="settings-section" style="margin-top: 2rem;">
+            <div class="reset-section">
+                 <button class="btn-reset" @onclick="ResetTheme">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .theme-settings-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+
+    .theme-settings-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .theme-settings-sidebar {
+        position: fixed;
+        top: 0;
+        right: -320px;
+        bottom: 0;
+        width: 320px;
+        background: var(--bg-primary);
+        z-index: 1001;
+        box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--border-color);
+    }
+
+    .theme-settings-sidebar.open {
+        right: 0;
+    }
+
+    .theme-settings-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .theme-settings-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .close-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .theme-settings-content {
+        padding: 24px 20px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .settings-subtitle {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .color-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .color-option:hover {
+        transform: translateY(-2px);
+    }
+
+    .color-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .color-option.selected .color-circle {
+        border-color: var(--text-primary);
+        transform: scale(1.1);
+    }
+
+    .color-name {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .btn-reset {
+        width: 100%;
+        padding: 10px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+        background: var(--border-color);
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    private string selectedThemeColor = "#2563eb";
+    
+    private List<ColorOption> themeColors = new()
+    {
+        new ColorOption { Name = "Blue", Value = "#2563eb" },
+        new ColorOption { Name = "Purple", Value = "#7c3aed" },
+        new ColorOption { Name = "Pink", Value = "#ec4899" },
+        new ColorOption { Name = "Red", Value = "#ef4444" },
+        new ColorOption { Name = "Orange", Value = "#f97316" },
+        new ColorOption { Name = "Green", Value = "#10b981" },
+        new ColorOption { Name = "Teal", Value = "#14b8a6" },
+        new ColorOption { Name = "Indigo", Value = "#6366f1" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            selectedThemeColor = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "theme-color") ?? "#2563eb";
+        }
+        catch
+        {
+            selectedThemeColor = "#2563eb";
+        }
+    }
+
+    private async Task SelectThemeColor(string color)
+    {
+        selectedThemeColor = color;
+        await JSRuntime.InvokeVoidAsync("setThemeColor", color);
+    }
+    
+    private async Task ResetTheme()
+    {
+        await SelectThemeColor("#2563eb");
+    }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    public class ColorOption
+    {
+        public string Name { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+}

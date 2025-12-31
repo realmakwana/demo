@@ -1,0 +1,13 @@
+@page "/vehicles"
+@using TransportERP.Models.DTOs
+
+<PageTitle>Vehicles - Transport ERP</PageTitle>
+
+<MasterPage TEntity="VehicleDto"
+              Title="Vehicles"
+              Subtitle="Manage your fleet vehicles"
+              GridTitle="All Vehicles"
+              DataSource="@vehicles"
+              OnSave="SaveVehicle"
+              OnDelete="DeleteVehicle"
+              GridTemplateContent="RenderGridTemplate" />

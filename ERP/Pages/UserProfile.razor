@@ -1,0 +1,108 @@
+@page "/profile"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using TransportERP.Models.ViewModels
+
+<PageTitle>My Profile - Transport ERP</PageTitle>
+
+<Breadcrumb Items="@breadcrumbItems" />
+
+<div class="profile-container fade-in">
+    <div class="profile-grid">
+        <!-- Profile Sidebar -->
+        <div class="profile-sidebar-card">
+            <div class="user-avatar-large">
+                @(GetInitials())
+            </div>
+            <h2 class="user-name-title">@AuthService.UserName</h2>
+            <p class="user-role-badge">System Administrator</p>
+            
+            <div class="user-info-quick">
+                <div class="info-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>admin@transporterp.com</span>
+                </div>
+                <div class="info-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <span>+91 9988776655</span>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <SfButton CssClass="e-primary e-block" IconCss="bi bi-camera">Update Photo</SfButton>
+            </div>
+        </div>
+
+        <!-- Professional Details Form -->
+        <div class="profile-main-content">
+            <div class="content-card">
+                <EditForm Model="@profileModel" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+                        <p class="card-subtitle">Manage your account identity and contact details</p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <SfTextBox @bind-Value="profileModel.FullName" Placeholder="Full Name" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                            <ValidationMessage For="@(() => profileModel.FullName)" />
+                        </div>
+                        <div class="form-group">
+                            <SfTextBox @bind-Value="profileModel.Email" Placeholder="Email Address" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline" Enabled="false"></SfTextBox>
+                            <ValidationMessage For="@(() => profileModel.Email)" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <SfTextBox @bind-Value="profileModel.Mobile" Placeholder="Mobile Number" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                            <ValidationMessage For="@(() => profileModel.Mobile)" />
+                        </div>
+                        <div class="form-group">
+                            <SfTextBox @bind-Value="profileModel.Role" Placeholder="User Role" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline" Enabled="false"></SfTextBox>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 16px;">
+                        <SfTextBox Placeholder="Bio / Status" Multiline="true" @bind-Value="profileModel.Bio" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                    </div>
+
+                    <div class="card-footer-actions">
+                        <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="submit">Save Changes</SfButton>
+                    </div>
+                </EditForm>
+            </div>
+
+            <!-- Login Activity / Security Card -->
+            <div class="content-card" style="margin-top: 24px;">
+                <div class="card-header">
+                    <h3 class="card-title">Security Status</h3>
+                </div>
+                <div class="security-list">
+                    <div class="security-item">
+                        <div class="sec-icon status-active">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="sec-details">
+                            <span class="sec-title">Two-Factor Authentication</span>
+                            <span class="sec-title">Enabled - Added layer of security</span>
+                        </div>
+                        <SfButton CssClass="e-flat e-danger">Disable</SfButton>
+                    </div>
+                    <div class="security-item">
+                        <div class="sec-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div class="sec-details">
+                            <span class="sec-title">Password Management</span>
+                            <span class="sec-desc">Last changed 45 days ago</span>
+                        </div>
+                        <SfButton CssClass="e-outline">Change</SfButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

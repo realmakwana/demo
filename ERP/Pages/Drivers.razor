@@ -1,0 +1,108 @@
+@page "/drivers"
+@using TransportERP.Models.DTOs
+
+<PageTitle>Drivers - Transport ERP</PageTitle>
+
+<MasterPage @ref="masterPage"
+            TEntity="DriverDto"
+            Title="Driver"
+            Subtitle="Manage fleet drivers and their information"
+            GridTitle="All Drivers"
+            DataSource="@drivers"
+            OnSave="SaveDriver"
+            OnDelete="DeleteDriver"
+            CustomActionsTemplate="@CustomActionsTemplate"
+            ModalTitle="Driver Profile Details"
+            ModalWidth="800px">
+    <ModalContent>
+        <div class="driver-profile-header">
+            <div class="driver-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="driver-main-info">
+                <h3>@context.Name</h3>
+                <p><i class="bi bi-telephone"></i> @context.Mobile</p>
+            </div>
+        </div>
+
+        <SfTab Height="auto" CssClass="driver-tabs">
+            <TabItems>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Basic Info"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <div class="detail-row">
+                                <div class="detail-label">Full Name</div>
+                                <div class="detail-value">@context.Name</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Mobile Number</div>
+                                <div class="detail-value">@context.Mobile</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Created Date</div>
+                                <div class="detail-value">@context.CreatedDate.ToShortDateString()</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Status</div>
+                                <div class="detail-value"><span class="badge-success">Active</span></div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="License Details"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <div class="detail-row">
+                                <div class="detail-label">License Number</div>
+                                <div class="detail-value">@context.LicenseNumber</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">License Type</div>
+                                <div class="detail-value">Heavy Motor Vehicle (HMV)</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Expiry Date</div>
+                                <div class="detail-value">12/12/2030</div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Documents"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <div class="docs-grid">
+                                <div class="doc-card">
+                                    <div class="doc-preview">
+                                        <img src="https://via.placeholder.com/150x100?text=License+Front" alt="License Front" />
+                                    </div>
+                                    <div class="doc-info">License Front</div>
+                                </div>
+                                <div class="doc-card">
+                                    <div class="doc-preview">
+                                        <img src="https://via.placeholder.com/150x100?text=Aadhar+Card" alt="Aadhar" />
+                                    </div>
+                                    <div class="doc-info">Aadhar Card</div>
+                                </div>
+                                <div class="doc-card">
+                                    <div class="doc-preview">
+                                        <img src="https://via.placeholder.com/150x100?text=Profile+Photo" alt="Profile" />
+                                    </div>
+                                    <div class="doc-info">Profile Photo</div>
+                                </div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+            </TabItems>
+        </SfTab>
+    </ModalContent>
+</MasterPage>

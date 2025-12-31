@@ -1,0 +1,48 @@
+@using Syncfusion.Blazor.Popups
+
+<div class="info-tooltip-container">
+    <SfTooltip Content="@Text" Position="Position.TopCenter" OpensOn="Auto" Target="#info-icon">
+        <span id="info-icon" class="info-icon" @onclick:preventDefault="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </span>
+    </SfTooltip>
+</div>
+
+<style>
+    .info-tooltip-container {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+    }
+
+    .info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-tertiary, #94a3b8);
+        cursor: help;
+        transition: color 0.2s ease;
+        padding: 4px; /* Increase touch target */
+        margin: -4px;
+    }
+
+    .info-icon:hover {
+        color: var(--primary-color, #2563eb);
+    }
+
+    .info-icon svg {
+        transition: transform 0.2s ease;
+    }
+
+    .info-icon:hover svg {
+        transform: scale(1.1);
+    }
+</style>
+
+@code {
+    [Parameter] public string Text { get; set; } = "Help information";
+}

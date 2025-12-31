@@ -1,0 +1,79 @@
+@page "/login"
+@layout EmptyLayout
+
+<PageTitle>Login - Transport ERP</PageTitle>
+
+<div class="login-wrapper">
+    <div class="mesh-background">
+        <div class="mesh-ball ball-1"></div>
+        <div class="mesh-ball ball-2"></div>
+        <div class="mesh-ball ball-3"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card fade-in-up">
+            <div class="login-header">
+                <div class="logo-container">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
+                        <path d="M16 11L12.7 7.4C12.4 7.1 12 7 11.6 7H5.2C4.3 7 3.4 7.7 3.3 8.6L2.1 11.6C2 11.9 2 12.1 2 12.4V16C2 17.1 2.9 18 4 18H5C5 19.1 5.9 20 7 20C8.1 20 9 19.1 9 18H15C15 19.1 15.9 20 17 20C18.1 20 19 19.1 19 18H20C21.1 18 22 17.1 22 16V12.8C22 12.4 21.9 12 21.6 11.7L19.4 9.5C19 9.1 18.5 8.9 18 8.9H16V11Z" fill="white"/>
+                        <circle cx="7" cy="18" r="1.5" fill="#1e40af"/>
+                        <circle cx="17" cy="18" r="1.5" fill="#1e40af"/>
+                    </svg>
+                </div>
+                <h1 class="app-name">Transport ERP</h1>
+                <p class="app-tagline">Logistics Intelligence & Management</p>
+            </div>
+
+            <div class="login-body">
+                <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                    <DataAnnotationsValidator />
+                    <LiveValidator />
+
+                    <div class="form-group slide-in-bottom" style="animation-delay: 0.1s;">
+                        <SfTextBox @bind-Value="loginModel.Username" 
+                                   Placeholder="Username" 
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="custom-input"
+                                   ValidateOnInput="true">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => loginModel.Username)" />
+                    </div>
+
+                    <div class="form-group slide-in-bottom" style="animation-delay: 0.2s;">
+                        <div class="password-field-wrapper">
+                            <SfTextBox @bind-Value="loginModel.Password" 
+                                       Placeholder="Password" 
+                                       FloatLabelType="FloatLabelType.Auto"
+                                       Type="@passwordInputType"
+                                       CssClass="custom-input"
+                                       ValidateOnInput="true">
+                            </SfTextBox>
+                            <button type="button" class="password-toggle-btn" @onclick="TogglePasswordVisibility">
+                                <i class="bi @(showPassword ? "bi-eye-slash-fill" : "bi-eye-fill")"></i>
+                            </button>
+                        </div>
+                        <ValidationMessage For="@(() => loginModel.Password)" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="error-alert fade-in">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            <span>@errorMessage</span>
+                        </div>
+                    }
+
+                    <div class="form-actions slide-in-bottom" style="animation-delay: 0.3s;">
+                        <SfButton IsPrimary="true" CssClass="login-btn" type="submit">Sign In</SfButton>
+                    </div>
+                </EditForm>
+            </div>
+
+            <div class="login-footer slide-in-bottom" style="animation-delay: 0.4s;">
+                <p>&copy; @DateTime.Now.Year PMP Transport Inc.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<LoadingSpinner IsLoading="@isLoading" LoadingText="Authenticating..." />
