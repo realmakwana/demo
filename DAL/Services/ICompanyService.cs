@@ -1,14 +1,14 @@
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 
 namespace TransportERP.Models.Services;
 
 public interface ICompanyService
 {
-    Task<List<CompanyViewModel>> GetAllCompaniesAsync();
-    Task<CompanyViewModel?> GetCompanyByIdAsync(int companyId);
-    Task<CompanyViewModel> CreateCompanyAsync(CompanyViewModel company);
-    Task<CompanyViewModel> UpdateCompanyAsync(CompanyViewModel company);
+    Task<List<CompanyDto>> GetAllCompaniesAsync();
+    Task<CompanyDto?> GetCompanyByIdAsync(int companyId);
+    Task<CompanyDto> CreateCompanyAsync(CompanyDto company);
+    Task<CompanyDto> UpdateCompanyAsync(CompanyDto company);
     Task<bool> DeleteCompanyAsync(int companyId);
     Task<int> GetTotalCompaniesCountAsync();
-    Task<List<CompanyViewModel>> GetActiveCompaniesAsync();
+    Task<List<CompanyDto>> GetActiveCompaniesAsync();
 }

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 using TransportERP.Models.Services;
 
 namespace ERP.Pages
@@ -9,7 +9,7 @@ namespace ERP.Pages
         [Inject] private ICompanyService CompanyService { get; set; } = default!;
         [Inject] private ToastService ToastService { get; set; } = default!;
 
-        private List<CompanyViewModel> companies = new();
+        private List<CompanyDto> companies = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -25,11 +25,11 @@ namespace ERP.Pages
             catch (Exception ex)
             {
                 ToastService.ShowToast($"Error loading companies: {ex.Message}", ToastLevel.Error);
-                companies = new List<CompanyViewModel>();
+                companies = new List<CompanyDto>();
             }
         }
 
-        private async Task SaveCompany(CompanyViewModel company)
+        private async Task SaveCompany(CompanyDto company)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace ERP.Pages
             }
         }
 
-        private async Task DeleteCompany(CompanyViewModel company)
+        private async Task DeleteCompany(CompanyDto company)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace ERP.Pages
 
         private RenderFragment RenderGridTemplate(string templateName, object context) => builder =>
         {
-            var company = context as CompanyViewModel;
+            var company = context as CompanyDto;
             if (templateName == "StatusBadge" && company != null)
             {
                 builder.OpenElement(0, "span");

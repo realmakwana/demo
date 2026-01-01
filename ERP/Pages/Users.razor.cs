@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 using TransportERP.Models.Services;
 
 namespace ERP.Pages
@@ -9,7 +9,7 @@ namespace ERP.Pages
         [Inject] private IUserService UserService { get; set; } = default!;
         [Inject] private ToastService ToastService { get; set; } = default!;
 
-        private List<UserViewModel> users = new();
+        private List<UserDto> users = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -25,11 +25,11 @@ namespace ERP.Pages
             catch (Exception ex)
             {
                 ToastService.ShowToast($"Error loading users: {ex.Message}", ToastLevel.Error);
-                users = new List<UserViewModel>();
+                users = new List<UserDto>();
             }
         }
 
-        private async Task SaveUser(UserViewModel user)
+        private async Task SaveUser(UserDto user)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace ERP.Pages
             }
         }
 
-        private async Task DeleteUser(UserViewModel user)
+        private async Task DeleteUser(UserDto user)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace ERP.Pages
 
         private RenderFragment RenderGridTemplate(string templateName, object context) => builder =>
         {
-            var user = context as UserViewModel;
+            var user = context as UserDto;
             if (templateName == "StatusBadge" && user != null)
             {
                 builder.OpenElement(0, "span");

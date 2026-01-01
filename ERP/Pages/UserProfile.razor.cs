@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using TransportERP.Models.Services;
 using ERP.Components.Shared.UI;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 
 namespace ERP.Pages
 {
@@ -10,7 +10,7 @@ namespace ERP.Pages
         [Inject] private AuthService AuthService { get; set; } = default!;
         [Inject] private ToastService ToastService { get; set; } = default!;
 
-        private ProfileViewModel profileModel = new();
+        private ProfileDto profileModel = new();
         
         private List<AppBreadcrumbItem> breadcrumbItems = new()
         {
@@ -20,7 +20,7 @@ namespace ERP.Pages
 
         protected override void OnInitialized()
         {
-            profileModel = new ProfileViewModel
+            profileModel = new ProfileDto
             {
                 FullName = AuthService.UserName ?? "Admin User",
                 Email = "admin@transporterp.com",

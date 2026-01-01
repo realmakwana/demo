@@ -3,7 +3,7 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.DropDowns
-@using TransportERP.Models.ViewModels
+@using TransportERP.Models.DTOs
 @using ERP.Components.Shared.UI
 
 <Breadcrumb Items="@breadcrumbItems" />
@@ -22,14 +22,14 @@
             <div class="col-md-4">
                 <label class="form-label">Select User</label>
                 <SfDropDownList TValue="int" 
-                                TItem="UserViewModel" 
+                                TItem="UserDto" 
                                 @bind-Value="selectedUserId"
                                 DataSource="@users" 
                                 Placeholder="-- Select User --"
                                 ShowClearButton="true"
                                 PopupHeight="300px">
                     <DropDownListFieldSettings Value="UserID" Text="UserName"></DropDownListFieldSettings>
-                    <DropDownListTemplates TItem="UserViewModel">
+                    <DropDownListTemplates TItem="UserDto">
                         <ItemTemplate>
                             <div class="user-dropdown-item">
                                 <div class="user-name">@context.UserName</div>
@@ -37,7 +37,7 @@
                             </div>
                         </ItemTemplate>
                     </DropDownListTemplates>
-                    <DropDownListEvents TValue="int" TItem="UserViewModel" ValueChange="OnUserSelectedAsync"></DropDownListEvents>
+                    <DropDownListEvents TValue="int" TItem="UserDto" ValueChange="OnUserSelectedAsync"></DropDownListEvents>
                 </SfDropDownList>
             </div>
             
@@ -85,12 +85,12 @@
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
             
             <GridColumns>
-                <GridColumn Field="@nameof(MenuRightsViewModel.MenuDispName)" 
+                <GridColumn Field="@nameof(MenuRightsDto.MenuDispName)" 
                             HeaderText="Menu / Module" 
                             Width="250">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             <div class="@(item.ParentMenuID == 0 ? "fw-bold" : "ps-4 text-muted")">
                                 @item.MenuDispName
                             </div>
@@ -98,25 +98,25 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsShow)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsShow)" 
                             HeaderText="Show" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             <SfCheckBox @bind-Checked="item.IsShow" TChecked="bool"></SfCheckBox>
                         }
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsAdd)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsAdd)" 
                             HeaderText="Add" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsAdd" TChecked="bool"></SfCheckBox>
@@ -125,13 +125,13 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsEdit)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsEdit)" 
                             HeaderText="Edit" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsEdit" TChecked="bool"></SfCheckBox>
@@ -140,13 +140,13 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsDelete)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsDelete)" 
                             HeaderText="Delete" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsDelete" TChecked="bool"></SfCheckBox>
@@ -155,13 +155,13 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsExport)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsExport)" 
                             HeaderText="Export" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsExport" TChecked="bool"></SfCheckBox>
@@ -170,13 +170,13 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsVerify)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsVerify)" 
                             HeaderText="Verify" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsVerify" TChecked="bool"></SfCheckBox>
@@ -185,13 +185,13 @@
                     </Template>
                 </GridColumn>
 
-                <GridColumn Field="@nameof(MenuRightsViewModel.IsPrint)" 
+                <GridColumn Field="@nameof(MenuRightsDto.IsPrint)" 
                             HeaderText="Print" 
                             Width="100" 
                             TextAlign="TextAlign.Center">
                     <Template>
                         @{
-                            var item = context as MenuRightsViewModel;
+                            var item = context as MenuRightsDto;
                             if (item.ParentMenuID != 0)
                             {
                                 <SfCheckBox @bind-Checked="item.IsPrint" TChecked="bool"></SfCheckBox>

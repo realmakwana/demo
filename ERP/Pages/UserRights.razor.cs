@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using TransportERP.Models.Entities;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 using TransportERP.Models.Services;
 using Syncfusion.Blazor.Grids;
 using ERP.Components.Shared.UI;
@@ -13,11 +13,11 @@ namespace ERP.Pages
         [Inject] private IMenuService MenuService { get; set; } = default!;
         [Inject] private ToastService ToastService { get; set; } = default!;
 
-        private List<UserViewModel> users = new();
+        private List<UserDto> users = new();
         private int selectedUserId;
-        private List<MenuRightsViewModel> menuRights = new();
+        private List<MenuRightsDto> menuRights = new();
         private bool isLoading = false;
-        private SfGrid<MenuRightsViewModel>? grid;
+        private SfGrid<MenuRightsDto>? grid;
         
         private List<AppBreadcrumbItem> breadcrumbItems = new()
         {
@@ -31,7 +31,7 @@ namespace ERP.Pages
             users = await UserService.GetAllUsersAsync();
         }
 
-        private async Task OnUserSelectedAsync(Syncfusion.Blazor.DropDowns.ChangeEventArgs<int, UserViewModel> args)
+        private async Task OnUserSelectedAsync(Syncfusion.Blazor.DropDowns.ChangeEventArgs<int, UserDto> args)
         {
             if (args.Value > 0)
             {
@@ -55,7 +55,7 @@ namespace ERP.Pages
 
             menuRights = allMenus.Select(m => {
                 var existing = userRights.FirstOrDefault(ur => ur.MenuID == m.MenuID);
-                return new MenuRightsViewModel
+                return new MenuRightsDto
                 {
                     MenuID = m.MenuID,
                     MenuDispName = m.MenuDispName,

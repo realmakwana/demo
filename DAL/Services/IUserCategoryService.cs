@@ -1,13 +1,13 @@
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 
 namespace TransportERP.Models.Services;
 
 public interface IUserCategoryService
 {
-    Task<List<UserCategoryViewModel>> GetAllUserCategoriesAsync();
-    Task<UserCategoryViewModel?> GetUserCategoryByIdAsync(int userId);
-    Task<UserCategoryViewModel> CreateUserCategoryAsync(UserCategoryViewModel user);
-    Task<UserCategoryViewModel> UpdateUserCategoryAsync(UserCategoryViewModel user);
+    Task<List<UserCategoryDto>> GetAllUserCategoriesAsync();
+    Task<UserCategoryDto?> GetUserCategoryByIdAsync(int userId);
+    Task<UserCategoryDto> CreateUserCategoryAsync(UserCategoryDto user);
+    Task<UserCategoryDto> UpdateUserCategoryAsync(UserCategoryDto user);
     Task<bool> DeleteUserCategoryAsync(int userId);
     Task<int> GetTotalUserCategoriesCountAsync();
 }

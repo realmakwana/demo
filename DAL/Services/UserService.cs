@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TransportERP.Models.Entities;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 using TransportERP.Models.DbContext;
 
 namespace TransportERP.Models.Services;
@@ -14,7 +14,7 @@ public class UserService : IUserService
         _contextFactory = contextFactory;
     }
 
-    public async Task<List<UserViewModel>> GetAllUsersAsync()
+    public async Task<List<UserDto>> GetAllUsersAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var users = await context.Users
@@ -25,7 +25,7 @@ public class UserService : IUserService
         return users.Select(MapToViewModel).ToList();
     }
 
-    public async Task<UserViewModel?> GetUserByIdAsync(int userId)
+    public async Task<UserDto?> GetUserByIdAsync(int userId)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var user = await context.Users
@@ -34,7 +34,7 @@ public class UserService : IUserService
         return user != null ? MapToViewModel(user) : null;
     }
 
-    public async Task<UserViewModel> CreateUserAsync(UserViewModel userViewModel)
+    public async Task<UserDto> CreateUserAsync(UserDto userViewModel)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var user = MapToEntity(userViewModel);
@@ -46,7 +46,7 @@ public class UserService : IUserService
         return userViewModel;
     }
 
-    public async Task<UserViewModel> UpdateUserAsync(UserViewModel userViewModel)
+    public async Task<UserDto> UpdateUserAsync(UserDto userViewModel)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var user = await context.Users.FindAsync(userViewModel.UserID);
@@ -88,7 +88,7 @@ public class UserService : IUserService
         return await context.Users.CountAsync();
     }
 
-    public async Task<List<UserViewModel>> GetUsersByRoleAsync(string role)
+    public async Task<List<UserDto>> GetUsersByRoleAsync(string role)
     {
         // Since Role is not in the new schema, return all users
         // You can modify this based on UserCategoryID if needed
@@ -96,9 +96,9 @@ public class UserService : IUserService
     }
 
     // Mapping methods
-    private UserViewModel MapToViewModel(User user)
+    private UserDto MapToViewModel(User user)
     {
-        return new UserViewModel
+        return new UserDto
         {
             UserID = user.UserID,
             UserCategoryID = user.UserCategoryID,
@@ -112,7 +112,7 @@ public class UserService : IUserService
         };
     }
 
-    private User MapToEntity(UserViewModel viewModel)
+    private User MapToEntity(UserDto viewModel)
     {
         return new User
         {

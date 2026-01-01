@@ -1,17 +1,17 @@
 using TransportERP.Models.Entities;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 
 namespace TransportERP.Models.Services;
 
 public interface IUserService
 {
-    Task<List<UserViewModel>> GetAllUsersAsync();
-    Task<UserViewModel?> GetUserByIdAsync(int userId);
-    Task<UserViewModel> CreateUserAsync(UserViewModel user);
-    Task<UserViewModel> UpdateUserAsync(UserViewModel user);
+    Task<List<UserDto>> GetAllUsersAsync();
+    Task<UserDto?> GetUserByIdAsync(int userId);
+    Task<UserDto> CreateUserAsync(UserDto user);
+    Task<UserDto> UpdateUserAsync(UserDto user);
     Task<bool> DeleteUserAsync(int userId);
     Task<int> GetTotalUsersCountAsync();
-    Task<List<UserViewModel>> GetUsersByRoleAsync(string role);
+    Task<List<UserDto>> GetUsersByRoleAsync(string role);
 }
 
 

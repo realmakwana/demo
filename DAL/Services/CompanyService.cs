@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TransportERP.Models.Entities;
-using TransportERP.Models.ViewModels;
+using TransportERP.Models.DTOs;
 using TransportERP.Models.DbContext;
 
 namespace TransportERP.Models.Services;
@@ -14,7 +14,7 @@ public class CompanyService : ICompanyService
         _contextFactory = contextFactory;
     }
 
-    public async Task<List<CompanyViewModel>> GetAllCompaniesAsync()
+    public async Task<List<CompanyDto>> GetAllCompaniesAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var companies = await context.Companies
@@ -24,51 +24,51 @@ public class CompanyService : ICompanyService
         return companies.Select(MapToViewModel).ToList();
     }
 
-    public async Task<CompanyViewModel?> GetCompanyByIdAsync(int companyId)
+    public async Task<CompanyDto?> GetCompanyByIdAsync(int companyId)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var company = await context.Companies.FindAsync(companyId);
         return company != null ? MapToViewModel(company) : null;
     }
 
-    public async Task<CompanyViewModel> CreateCompanyAsync(CompanyViewModel companyViewModel)
+    public async Task<CompanyDto> CreateCompanyAsync(CompanyDto CompanyDto)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var company = MapToEntity(companyViewModel);
+        var company = MapToEntity(CompanyDto);
         company.CreatedDate = DateTime.Now;
 
         context.Companies.Add(company);
         await context.SaveChangesAsync();
 
-        companyViewModel.CompanyID = company.CompanyID;
-        return companyViewModel;
+        CompanyDto.CompanyID = company.CompanyID;
+        return CompanyDto;
     }
 
-    public async Task<CompanyViewModel> UpdateCompanyAsync(CompanyViewModel companyViewModel)
+    public async Task<CompanyDto> UpdateCompanyAsync(CompanyDto CompanyDto)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var company = await context.Companies.FindAsync(companyViewModel.CompanyID);
+        var company = await context.Companies.FindAsync(CompanyDto.CompanyID);
         if (company == null)
-            throw new Exception($"Company with ID {companyViewModel.CompanyID} not found");
+            throw new Exception($"Company with ID {CompanyDto.CompanyID} not found");
 
         // Update properties
-        company.CompanyName = companyViewModel.CompanyName;
-        company.ShortCode = companyViewModel.ShortCode;
-        company.CompanyAddress = companyViewModel.CompanyAddress;
-        company.GSTNO = companyViewModel.GSTNO;
-        company.PANNO = companyViewModel.PANNO;
-        company.PhoneNo = companyViewModel.PhoneNo;
-        company.MobileNo = companyViewModel.MobileNo;
-        company.Mail = companyViewModel.Mail;
-        company.MailKey = companyViewModel.MailKey;
-        company.StartDate = companyViewModel.StartDate;
-        company.EndDate = companyViewModel.EndDate;
-        company.IsActive = companyViewModel.IsActive;
+        company.CompanyName = CompanyDto.CompanyName;
+        company.ShortCode = CompanyDto.ShortCode;
+        company.CompanyAddress = CompanyDto.CompanyAddress;
+        company.GSTNO = CompanyDto.GSTNO;
+        company.PANNO = CompanyDto.PANNO;
+        company.PhoneNo = CompanyDto.PhoneNo;
+        company.MobileNo = CompanyDto.MobileNo;
+        company.Mail = CompanyDto.Mail;
+        company.MailKey = CompanyDto.MailKey;
+        company.StartDate = CompanyDto.StartDate;
+        company.EndDate = CompanyDto.EndDate;
+        company.IsActive = CompanyDto.IsActive;
 
         context.Companies.Update(company);
         await context.SaveChangesAsync();
 
-        return companyViewModel;
+        return CompanyDto;
     }
 
     public async Task<bool> DeleteCompanyAsync(int companyId)
@@ -90,7 +90,7 @@ public class CompanyService : ICompanyService
         return await context.Companies.CountAsync();
     }
 
-    public async Task<List<CompanyViewModel>> GetActiveCompaniesAsync()
+    public async Task<List<CompanyDto>> GetActiveCompaniesAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var companies = await context.Companies
@@ -102,9 +102,9 @@ public class CompanyService : ICompanyService
     }
 
     // Mapping methods
-    private CompanyViewModel MapToViewModel(Company company)
+    private CompanyDto MapToViewModel(Company company)
     {
-        return new CompanyViewModel
+        return new CompanyDto
         {
             CompanyID = company.CompanyID,
             CompanyName = company.CompanyName ?? string.Empty,
@@ -123,7 +123,7 @@ public class CompanyService : ICompanyService
         };
     }
 
-    private Company MapToEntity(CompanyViewModel viewModel)
+    private Company MapToEntity(CompanyDto viewModel)
     {
         return new Company
         {
