@@ -1,14 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using TransportERP.Models.DbContext;
-using TransportERP.Models.Entities;
+using ERP.Models.DbContext;
+using ERP.Models.Entities;
 
-namespace TransportERP.Models.Services
+namespace ERP.Models.Services
 {
+    public interface IMenuService
+    {
+        Task<List<Menu>> GetAllMenusAsync();
+        Task<List<Menu>> GetUserMenusAsync(int userId);
+        Task<UserWiseMenu?> GetUserMenuRightsAsync(int userId, string menuUrl);
+        Task<bool> UpdateUserMenuRightsAsync(List<UserWiseMenu> rights);
+        Task<List<UserWiseMenu>> GetUserRightsListAsync(int userId);
+    }
+
     public class MenuService : IMenuService
     {
-        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        private readonly IDbContextFactory<ERPDbContext> _contextFactory;
 
-        public MenuService(IDbContextFactory<ApplicationDbContext> contextFactory)
+        public MenuService(IDbContextFactory<ERPDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }

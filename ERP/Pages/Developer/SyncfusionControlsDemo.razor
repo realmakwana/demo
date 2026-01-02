@@ -1,0 +1,148 @@
+@page "/syncfusion-controls"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Grids
+
+<PageTitle>Syncfusion Controls - Transport ERP</PageTitle>
+
+<Breadcrumb Items="@breadcrumbItems" />
+
+<div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h3 style="margin-bottom: var(--spacing-md);">Text Inputs</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">TextBox</label>
+            <SfTextBox Placeholder="Enter text" @bind-value="@textValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+            <small style="color: var(--text-secondary);">Current value: @textValue</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Numeric TextBox</label>
+            <SfNumericTextBox TValue="int?" Placeholder="Enter number" @bind-value="@numericValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfNumericTextBox>
+            <small style="color: var(--text-secondary);">Current value: @numericValue</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">MaskedTextBox (Phone)</label>
+            <SfMaskedTextBox Mask="(000) 000-0000" @bind-value="@phoneValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfMaskedTextBox>
+            <small style="color: var(--text-secondary);">Current value: @phoneValue</small>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h3 style="margin-bottom: var(--spacing-md);">Date & Time Pickers</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">DatePicker</label>
+            <SfDatePicker TValue="DateTime?" Placeholder="Select date" @bind-value="@dateValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfDatePicker>
+            <small style="color: var(--text-secondary);">Selected: @(dateValue?.ToString("dd MMM yyyy") ?? "None")</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">DateTimePicker</label>
+            <SfDateTimePicker TValue="DateTime?" Placeholder="Select date and time" @bind-value="@dateTimeValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfDateTimePicker>
+            <small style="color: var(--text-secondary);">Selected: @(dateTimeValue?.ToString("dd MMM yyyy HH:mm") ?? "None")</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">TimePicker</label>
+            <SfTimePicker TValue="DateTime?" Placeholder="Select time" @bind-value="@timeValue" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTimePicker>
+            <small style="color: var(--text-secondary);">Selected: @(timeValue?.ToString("HH:mm") ?? "None")</small>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h3 style="margin-bottom: var(--spacing-md);">Dropdowns & Selection</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">DropDownList</label>
+            <SfDropDownList TValue="string" TItem="string" Placeholder="Select option" DataSource="@dropdownData" @bind-value="@selectedDropdown" AllowFiltering="true" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfDropDownList>
+            <small style="color: var(--text-secondary);">Selected: @selectedDropdown</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">ComboBox</label>
+            <SfComboBox TValue="string" TItem="string" Placeholder="Select or type" DataSource="@dropdownData" @bind-value="@selectedCombo" AllowFiltering="true" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfComboBox>
+            <small style="color: var(--text-secondary);">Selected: @selectedCombo</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">MultiSelect</label>
+            <SfMultiSelect TValue="string[]" TItem="string" Placeholder="Select multiple" DataSource="@dropdownData" @bind-value="@selectedMultiple" AllowFiltering="true" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfMultiSelect>
+            <small style="color: var(--text-secondary);">Selected: @(selectedMultiple?.Length ?? 0) items</small>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h3 style="margin-bottom: var(--spacing-md);">Buttons & Checkboxes</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Buttons</label>
+            <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                <SfButton Content="Primary" IsPrimary="true" @onclick="ShowMessage"></SfButton>
+                <SfButton Content="Normal" @onclick="ShowMessage"></SfButton>
+                <SfButton Content="Success" CssClass="e-success" @onclick="ShowMessage"></SfButton>
+                <SfButton Content="Danger" CssClass="e-danger" @onclick="ShowMessage"></SfButton>
+                <SfButton Content="Warning" CssClass="e-warning" @onclick="ShowMessage"></SfButton>
+                <SfButton Content="Info" CssClass="e-info" @onclick="ShowMessage"></SfButton>
+            </div>
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <small style="color: var(--primary-color); margin-top: var(--spacing-sm); display: block;">@message</small>
+            }
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">CheckBox</label>
+            <SfCheckBox Label="I agree to terms and conditions" @bind-checked="@checkboxValue"></SfCheckBox>
+            <small style="color: var(--text-secondary); display: block; margin-top: var(--spacing-xs);">Checked: @checkboxValue</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Switch</label>
+            <SfSwitch @bind-checked="@switchValue"></SfSwitch>
+            <small style="color: var(--text-secondary); display: block; margin-top: var(--spacing-xs);">Status: @(switchValue ? "ON" : "OFF")</small>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: var(--spacing-md);">Other Controls</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Slider (Value: @sliderValue)</label>
+            <SfSlider TValue="int" @bind-value="@sliderValue" Min="0" Max="100"></SfSlider>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Color Picker</label>
+            <SfColorPicker @bind-value="@colorValue"></SfColorPicker>
+            <div style="margin-top: var(--spacing-sm); padding: var(--spacing-md); background: @colorValue; border-radius: var(--radius-md); color: white; text-align: center;">
+                Selected Color: @colorValue
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: var(--spacing-md);">Data Grid</h3>
+    <SfGrid DataSource="@gridData" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+        <GridPageSettings PageSize="5"></GridPageSettings>
+        <GridColumns>
+            <GridColumn Field=@nameof(Order.OrderID) HeaderText="Order ID" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(Order.CustomerID) HeaderText="Customer Name" Width="150"></GridColumn>
+            <GridColumn Field=@nameof(Order.OrderDate) HeaderText=" Order Date" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Right" Width="130"></GridColumn>
+            <GridColumn Field=@nameof(Order.Freight) HeaderText="Freight" Format="C2" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>

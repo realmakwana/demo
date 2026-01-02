@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Syncfusion.Blazor.Grids;
-using TransportERP.Models.Entities;
+using ERP.Models.Entities;
 using ERP.Components.Shared.UI;
-using TransportERP.Models.Services;
+using ERP.Models.Services;
 
 namespace ERP.Components.Shared.CRUD
 {

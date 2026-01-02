@@ -1,4 +1,4 @@
-namespace TransportERP.Models.Entities;
+namespace ERP.Models.Entities;
 
 /// <summary>
 /// Base entity class with common properties for all database entities

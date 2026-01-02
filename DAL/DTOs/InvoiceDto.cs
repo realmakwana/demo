@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TransportERP.Models.DTOs
+namespace ERP.Models.DTOs
 {
     public class InvoiceDto
     {

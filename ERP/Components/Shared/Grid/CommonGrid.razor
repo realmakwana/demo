@@ -1,0 +1,152 @@
+@typeparam TEntity where TEntity : class
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using ERP.Components.Shared.CRUD
+
+<div class="grid-container fade-in">
+    <!-- Grid Header -->
+    <div class="grid-header">
+        <div class="grid-title-container">
+            <h3 class="grid-title">@GridTitle</h3>
+            @if (!string.IsNullOrEmpty(HelpText))
+            {
+                <InfoTooltip Text="@HelpText" />
+            }
+        </div>
+        <div class="grid-actions">
+            @if (ShowAddButton && CanAdd && OnAdd.HasDelegate)
+            {
+                <SfButton CssClass="e-success" IconCss="bi bi-plus-circle" OnClick="HandleAdd">
+                    Add @EntityName
+                </SfButton>
+            }
+        </div>
+    </div>
+
+    <!-- Syncfusion Grid -->
+    <SfGrid @ref="grid"
+            DataSource="@DataSource"
+            AllowPaging="true"
+            AllowSorting="true"
+            AllowFiltering="true"
+            AllowResizing="true"
+            Toolbar="@GridToolbar">
+
+        <GridPageSettings PageSize="@PageSize" PageSizes="@PageSizes"></GridPageSettings>
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+        <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+
+        <GridEvents TValue="TEntity" 
+                    RowSelected="HandleRowSelected">
+        </GridEvents>
+
+        <GridColumns>
+            @GridColumns
+
+            @if (ShowActions)
+            {
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center" Freeze="FreezeDirection.Right">
+                    <Template>
+                        @{
+                            var entity = context as TEntity;
+                            <div class="action-buttons">
+                                @if (CanEdit && OnEdit.HasDelegate)
+                                {
+                                    <SfButton CssClass="action-icon-btn edit-btn" 
+                                              IconCss="bi bi-pencil" 
+                                              IsPrimary="false"
+                                              title="Edit"
+                                              OnClick="@(() => HandleEdit(entity))">
+                                    </SfButton>
+                                }
+                                @if (CanDelete && OnDelete.HasDelegate)
+                                {
+                                    <SfButton CssClass="action-icon-btn delete-btn" 
+                                              IconCss="bi bi-trash" 
+                                              IsPrimary="false"
+                                              title="Delete"
+                                              OnClick="@(() => HandleDelete(entity))">
+                                    </SfButton>
+                                }
+                                @if (CustomActions != null)
+                                {
+                                    @CustomActions(entity)
+                                }
+                            </div>
+                        }
+                    </Template>
+                </GridColumn>
+            }
+        </GridColumns>
+    </SfGrid>
+</div>
+
+<ConfirmationDialog @ref="confirmDialog" />
+
+@code {
+    private SfGrid<TEntity>? grid;
+    private ConfirmationDialog confirmDialog = default!;
+
+    [Parameter] public string GridTitle { get; set; } = "Data Grid";
+    [Parameter] public string EntityName { get; set; } = "Record";
+    [Parameter] public string? HelpText { get; set; }
+    [Parameter] public List<TEntity> DataSource { get; set; } = new();
+    [Parameter] public RenderFragment? GridColumns { get; set; }
+    [Parameter] public RenderFragment<TEntity>? CustomActions { get; set; }
+
+    [Parameter] public bool ShowAddButton { get; set; } = true;
+    [Parameter] public bool ShowExportButton { get; set; } = false;
+    [Parameter] public bool ShowActions { get; set; } = true;
+    
+    // Permission Parameters
+    [Parameter] public bool CanAdd { get; set; } = true;
+    [Parameter] public bool CanEdit { get; set; } = true;
+    [Parameter] public bool CanDelete { get; set; } = true;
+    [Parameter] public bool CanExport { get; set; } = true;
+    [Parameter] public bool CanPrint { get; set; } = true;
+
+    [Parameter] public int PageSize { get; set; } = 20;
+    [Parameter] public int[] PageSizes { get; set; } = new int[] { 10, 20, 50, 100 };
+    [Parameter] public List<string> GridToolbar { get; set; } = new() { "Search" };
+
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback<TEntity> OnEdit { get; set; }
+    [Parameter] public EventCallback<TEntity> OnDelete { get; set; }
+    [Parameter] public EventCallback<TEntity> OnRowSelected { get; set; }
+
+    private async Task HandleAdd()
+    {
+        if (CanAdd && OnAdd.HasDelegate)
+            await OnAdd.InvokeAsync();
+    }
+
+    private async Task HandleEdit(TEntity? entity)
+    {
+        if (entity != null && CanEdit && OnEdit.HasDelegate)
+            await OnEdit.InvokeAsync(entity);
+    }
+
+    private async Task HandleDelete(TEntity? entity)
+    {
+        if (entity != null && CanDelete && OnDelete.HasDelegate)
+        {
+            var confirmed = await confirmDialog.Show($"Are you sure you want to delete this {EntityName}?");
+            if (confirmed)
+            {
+                await OnDelete.InvokeAsync(entity);
+            }
+        }
+    }
+
+    private async Task HandleRowSelected(RowSelectEventArgs<TEntity> args)
+    {
+        if (OnRowSelected.HasDelegate && args.Data != null)
+            await OnRowSelected.InvokeAsync(args.Data);
+    }
+
+    public async Task RefreshGrid()
+    {
+        if (grid != null)
+            await grid.Refresh();
+    }
+}

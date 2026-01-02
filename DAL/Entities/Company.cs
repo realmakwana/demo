@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TransportERP.Models.Entities;
+namespace ERP.Models.Entities;
 
 /// <summary>
 /// Company Entity - Maps to tblCompany table in database

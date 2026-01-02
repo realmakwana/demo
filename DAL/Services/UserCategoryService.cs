@@ -1,75 +1,71 @@
 using Microsoft.EntityFrameworkCore;
-using TransportERP.Models.Entities;
-using TransportERP.Models.DTOs;
-using TransportERP.Models.DbContext;
+using ERP.Models.Entities;
+using ERP.Models.DbContext;
 
-namespace TransportERP.Models.Services;
+namespace ERP.Models.Services;
+
+public interface IUserCategoryService
+{
+    Task<List<UserCategory>> GetAllUserCategoriesAsync();
+    Task<UserCategory?> GetUserCategoryByIdAsync(int userId);
+    Task<UserCategory> CreateUserCategoryAsync(UserCategory user);
+    Task<UserCategory> UpdateUserCategoryAsync(UserCategory user);
+    Task<bool> DeleteUserCategoryAsync(int userId);
+    Task<int> GetTotalUserCategoriesCountAsync();
+}
 
 public class UserCategoryService : IUserCategoryService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly IDbContextFactory<ERPDbContext> _contextFactory;
 
-    public UserCategoryService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public UserCategoryService(IDbContextFactory<ERPDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public async Task<List<UserCategoryDto>> GetAllUserCategoriesAsync()
+    public async Task<List<UserCategory>> GetAllUserCategoriesAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var users = await context.UserCategories
+        return await context.UserCategories
             .OrderByDescending(u => u.UserCategoryID)
             .ToListAsync();
-
-        return users.Select(MapToViewModel).ToList();
     }
 
-    public async Task<UserCategoryDto?> GetUserCategoryByIdAsync(int UserCategoryID)
+    public async Task<UserCategory?> GetUserCategoryByIdAsync(int UserCategoryID)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = await context.UserCategories
+        return await context.UserCategories
             .FirstOrDefaultAsync(u => u.UserCategoryID == UserCategoryID);
-        return user != null ? MapToViewModel(user) : null;
     }
 
-    public async Task<UserCategoryDto> CreateUserCategoryAsync(UserCategoryDto UserCategoryDto)
+    public async Task<UserCategory> CreateUserCategoryAsync(UserCategory userCategory)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = MapToEntity(UserCategoryDto);
 
-        context.UserCategories.Add(user);
+        context.UserCategories.Add(userCategory);
         await context.SaveChangesAsync();
 
-        UserCategoryDto.UserCategoryID = user.UserCategoryID;
-        return UserCategoryDto;
+        return userCategory;
     }
 
-    public async Task<UserCategoryDto> UpdateUserCategoryAsync(UserCategoryDto UserCategoryDto)
+    public async Task<UserCategory> UpdateUserCategoryAsync(UserCategory userCategory)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = await context.UserCategories.FindAsync(UserCategoryDto.UserCategoryID);
-        if (user == null)
-            throw new Exception($"User with ID {UserCategoryDto.UserCategoryID} not found");
-
-        // Update properties
-        user.UserCategoryID = UserCategoryDto.UserCategoryID;
-        user.UserCategoryName = UserCategoryDto.UserCategoryName;
-        user.IsActive = UserCategoryDto.IsActive;
-
-        context.UserCategories.Update(user);
+        
+        context.UserCategories.Update(userCategory);
         await context.SaveChangesAsync();
 
-        return UserCategoryDto;
+        return userCategory;
     }
 
     public async Task<bool> DeleteUserCategoryAsync(int UserCategoryID)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = await context.Users.FindAsync(UserCategoryID);
-        if (user == null)
+        var userCategory = await context.UserCategories.FindAsync(UserCategoryID);
+        if (userCategory == null)
             return false;
 
-        context.Users.Remove(user);
+        context.UserCategories.Remove(userCategory);
         await context.SaveChangesAsync();
 
         return true;
@@ -78,28 +74,6 @@ public class UserCategoryService : IUserCategoryService
     public async Task<int> GetTotalUserCategoriesCountAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.Users.CountAsync();
-    }
-
-    // Mapping methods
-    private UserCategoryDto MapToViewModel(UserCategory user)
-    {
-        return new UserCategoryDto
-        {
-            UserCategoryID = user.UserCategoryID,
-             UserCategoryName = user.UserCategoryName,
-            IsActive = user.IsActive ?? true
-        };
-    }
-
-    private UserCategory MapToEntity(UserCategoryDto viewModel)
-    {
-        return new UserCategory
-        {
-            UserCategoryID = viewModel.UserCategoryID,
-            UserCategoryName = viewModel.UserCategoryName,
-            IsActive = viewModel.IsActive
-        };
+        return await context.UserCategories.CountAsync();
     }
 }
-

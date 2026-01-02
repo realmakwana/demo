@@ -1,0 +1,210 @@
+@page "/invoices"
+@using ERP.Models.Entities
+@using ERP.Components.Shared.Grid
+@using ERP.Components.Shared.UI
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+
+<PageTitle>Invoices - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm && currentInvoice != null)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentInvoice.Id == 0 ? "Create New Invoice" : "Edit Invoice")</h3>
+                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+            </div>
+
+            <EditForm Model="@currentInvoice" OnValidSubmit="SaveInvoice">
+                <DataAnnotationsValidator />
+                
+                <div class="section-title">Invoice Header</div>
+                <div class="row g-4 mb-4">
+                    <!-- Invoice Number -->
+                    <div class="col-md-4">
+                        <SfTextBox @bind-Value="currentInvoice.InvoiceNumber" 
+                                   Placeholder="Invoice Number *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentInvoice.InvoiceNumber)" />
+                    </div>
+
+                    <!-- Invoice Date -->
+                    <div class="col-md-4">
+                        <SfDatePicker TValue="DateTime" @bind-Value="currentInvoice.InvoiceDate" 
+                                     Placeholder="Invoice Date *"
+                                     FloatLabelType="FloatLabelType.Auto"
+                                     CssClass="e-outline">
+                        </SfDatePicker>
+                        <ValidationMessage For="@(() => currentInvoice.InvoiceDate)" />
+                    </div>
+
+                    <!-- Customer Name -->
+                    <div class="col-md-4">
+                        <AutoSuggestBox @bind-Value="currentInvoice.CustomerName" 
+                                       Placeholder="Customer Name *"
+                                       SearchFunction="SearchCustomers"
+                                       FloatLabelType="FloatLabelType.Auto"
+                                       CssClass="e-outline">
+                        </AutoSuggestBox>
+                        <ValidationMessage For="@(() => currentInvoice.CustomerName)" />
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-4">
+                        <SfTextBox @bind-Value="currentInvoice.CustomerPhone" 
+                                   Placeholder="Phone Number"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-4">
+                        <SfTextBox @bind-Value="currentInvoice.CustomerEmail" 
+                                   Placeholder="Email Address"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-md-4">
+                        <SfTextBox @bind-Value="currentInvoice.CustomerAddress" 
+                                   Multiline="true"
+                                   Placeholder="Customer Address"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+                </div>
+
+                <div class="section-title">Invoice Items</div>
+                <!-- Line Item Entry Form -->
+                <div class="line-item-entry p-3 mb-3 border rounded bg-light">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <SfTextBox @bind-Value="newItem.ItemName" Placeholder="Item Name" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <SfTextBox @bind-Value="newItem.Description" Placeholder="Description" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <SfDropDownList TValue="string" TItem="string" @bind-Value="newItem.Category" DataSource="@categories" Placeholder="Category" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfDropDownList>
+                        </div>
+                        <div class="col-md-1">
+                            <SfNumericTextBox TValue="int" @bind-Value="newItem.Quantity" Placeholder="Qty" FloatLabelType="FloatLabelType.Auto" Min="1" CssClass="e-outline"></SfNumericTextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <SfNumericTextBox TValue="decimal" @bind-Value="newItem.UnitPrice" Placeholder="Price" FloatLabelType="FloatLabelType.Auto" Format="C2" CssClass="e-outline"></SfNumericTextBox>
+                        </div>
+                        <div class="col-md-1">
+                            <SfButton CssClass="e-primary w-100" IconCss="bi bi-plus" OnClick="AddLineItem" Type="button">Add</SfButton>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover border">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!currentInvoiceItems.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3">No items added yet.</td>
+                                </tr>
+                            }
+                            @foreach (var item in currentInvoiceItems)
+                            {
+                                <tr>
+                                    <td>@item.ItemName</td>
+                                    <td>@item.Description</td>
+                                    <td>@item.Category</td>
+                                    <td class="text-end">@item.Quantity</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("C2")</td>
+                                    <td class="text-end">@item.Amount.ToString("C2")</td>
+                                    <td class="text-center">
+                                        <SfButton CssClass="e-danger e-small e-outline" IconCss="bi bi-trash" OnClick="@(() => RemoveLineItem(item))" Type="button"></SfButton>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals Section -->
+                <div class="row justify-content-end">
+                    <div class="col-md-4">
+                        <div class="totals-card p-3 border rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>@currentInvoice.SubTotal.ToString("C2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax (18%):</span>
+                                <span>@currentInvoice.TaxAmount.ToString("C2")</span>
+                            </div>
+                            <hr />
+                            <div class="d-flex justify-content-between h5 mb-0">
+                                <strong>Total:</strong>
+                                <strong>@currentInvoice.TotalAmount.ToString("C2")</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentInvoice.Id == 0 ? "Save Invoice" : "Update Invoice")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm" Type="button">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="Invoice"
+                    GridTitle="All Invoices"
+                    EntityName="Invoice"
+                    HelpText="Manage customer invoices and billing history."
+                    DataSource="@invoices"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteInvoice">
+            <GridColumns>
+                <GridColumn Field="@nameof(Invoice.InvoiceNumber)" HeaderText="Invoice #" Width="150" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.InvoiceDate)" HeaderText="Date" Width="120" Format="d"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.CustomerName)" HeaderText="Customer" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.TotalAmount)" HeaderText="Total Amount" Width="150" Format="C2" TextAlign="TextAlign.Right"></GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

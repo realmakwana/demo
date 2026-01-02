@@ -1,5 +1,5 @@
 @typeparam TEntity where TEntity : class, new()
-@using TransportERP.Models.Helpers
+@using ERP.Models.Helpers
 @using System.Reflection
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Buttons
@@ -116,7 +116,7 @@ else if (!showForm)
                     }
                 }
                 
-                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center" Freeze="FreezeDirection.Right">
                     <Template>
                         @{
                             var item = context as TEntity;
@@ -186,7 +186,7 @@ else
     <!-- STICKY FOOTER -->
     <div class="sticky-footer">
         <SfButton CssClass="e-outline" OnClick="@((args) => CancelForm())">Cancel</SfButton>
-        <SfButton CssClass="e-primary" OnClick="@((args) => SaveItem())" IconCss="bi bi-save">Save changes</SfButton>
+        <SfButton CssClass="e-primary" OnClick="@((args) => SaveItem())" IconCss="bi bi-save">@(isEditMode ? $"Update {Title}" : $"Save {Title}")</SfButton>
     </div>
 }
 

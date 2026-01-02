@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using TransportERP.Models.Attributes;
+using ERP.Models.Attributes;
 
-namespace TransportERP.Models.DTOs;
+namespace ERP.Models.DTOs;
 
 /// <summary>
 /// User Data Transfer Object - Consolidated from UserViewModel

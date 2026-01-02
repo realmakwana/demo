@@ -1,0 +1,125 @@
+@page "/vehicles"
+@using ERP.Models.Entities
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Calendars
+
+<PageTitle>Vehicles - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentVehicle?.Id == 0 ? "Add New Vehicle" : "Edit Vehicle")</h3>
+                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+            </div>
+
+            <EditForm Model="@currentVehicle" OnValidSubmit="SaveVehicle">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <!-- Vehicle Number -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentVehicle.VehicleNumber" 
+                                   Placeholder="Vehicle Number *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentVehicle.VehicleNumber)" />
+                    </div>
+
+                    <!-- Vehicle Type -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentVehicle.VehicleType" 
+                                   Placeholder="Vehicle Type"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Capacity -->
+                    <div class="col-md-6">
+                        <SfNumericTextBox TValue="decimal?" @bind-Value="currentVehicle.Capacity" 
+                                         Placeholder="Capacity (Tons)"
+                                         FloatLabelType="FloatLabelType.Auto"
+                                         CssClass="e-outline">
+                        </SfNumericTextBox>
+                    </div>
+
+                    <!-- Model Year -->
+                    <div class="col-md-6">
+                        <SfNumericTextBox TValue="int?" @bind-Value="currentVehicle.ModelYear" 
+                                         Placeholder="Model Year"
+                                         Format="0000"
+                                         FloatLabelType="FloatLabelType.Auto"
+                                         CssClass="e-outline">
+                        </SfNumericTextBox>
+                    </div>
+
+                    <!-- Insurance Expiry -->
+                    <div class="col-md-6">
+                        <SfDatePicker TValue="DateTime?" @bind-Value="currentVehicle.InsuranceExpiry" 
+                                     Placeholder="Insurance Expiry"
+                                     FloatLabelType="FloatLabelType.Auto"
+                                     CssClass="e-outline">
+                        </SfDatePicker>
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-6 d-flex align-items-center">
+                        <SfCheckBox @bind-Checked="currentVehicle.IsActive" Label="Active" TChecked="bool?"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentVehicle?.Id == 0 ? "Save Vehicle" : "Update Vehicle")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="Vehicle"
+                    GridTitle="All Vehicles"
+                    EntityName="Vehicle"
+                    HelpText="Manage your fleet vehicles and track their insurance/fitness status."
+                    DataSource="@vehicles"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteVehicle">
+            <GridColumns>
+                <GridColumn Field="@nameof(Vehicle.Id)" HeaderText="ID" Width="80" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(Vehicle.VehicleNumber)" HeaderText="Vehicle No" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(Vehicle.VehicleType)" HeaderText="Type" Width="120"></GridColumn>
+                <GridColumn Field="@nameof(Vehicle.Capacity)" HeaderText="Capacity" Width="120"></GridColumn>
+                <GridColumn Field="@nameof(Vehicle.InsuranceExpiry)" HeaderText="Insurance Expiry" Width="180" Format="d"></GridColumn>
+                <GridColumn Field="@nameof(Vehicle.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var vehicle = context as Vehicle;
+                            <span class="@(vehicle?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(vehicle?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
-using TransportERP.Models.DbContext;
+using ERP.Models.DbContext;
 using System;
 using System.Threading.Tasks;
 
-namespace TransportERP.Models.Services
+namespace ERP.Models.Services
 {
     public class AuthService
     {
         private readonly ProtectedLocalStorage _localStorage;
-        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        private readonly IDbContextFactory<ERPDbContext> _contextFactory;
         private bool _isAuthenticated;
         private string? _userName;
         private int _userId;
 
-        public AuthService(ProtectedLocalStorage localStorage, IDbContextFactory<ApplicationDbContext> contextFactory)
+        public AuthService(ProtectedLocalStorage localStorage, IDbContextFactory<ERPDbContext> contextFactory)
         {
             _localStorage = localStorage;
             _contextFactory = contextFactory;

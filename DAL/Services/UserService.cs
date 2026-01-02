@@ -1,72 +1,64 @@
 using Microsoft.EntityFrameworkCore;
-using TransportERP.Models.Entities;
-using TransportERP.Models.DTOs;
-using TransportERP.Models.DbContext;
+using ERP.Models.Entities;
+using ERP.Models.DbContext;
 
-namespace TransportERP.Models.Services;
+namespace ERP.Models.Services;
+
+public interface IUserService
+{
+    Task<List<User>> GetAllUsersAsync();
+    Task<User?> GetUserByIdAsync(int userId);
+    Task<User> CreateUserAsync(User user);
+    Task<User> UpdateUserAsync(User user);
+    Task<bool> DeleteUserAsync(int userId);
+    Task<int> GetTotalUsersCountAsync();
+    Task<List<User>> GetUsersByRoleAsync(string role);
+}
 
 public class UserService : IUserService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly IDbContextFactory<ERPDbContext> _contextFactory;
 
-    public UserService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public UserService(IDbContextFactory<ERPDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public async Task<List<UserDto>> GetAllUsersAsync()
+    public async Task<List<User>> GetAllUsersAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var users = await context.Users
+        return await context.Users
             .Include(u => u.Company)
-            .OrderByDescending(u => u.UserID)  // Newest first
+            .OrderByDescending(u => u.UserID)
             .ToListAsync();
-
-        return users.Select(MapToViewModel).ToList();
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(int userId)
+    public async Task<User?> GetUserByIdAsync(int userId)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = await context.Users
+        return await context.Users
             .Include(u => u.Company)
             .FirstOrDefaultAsync(u => u.UserID == userId);
-        return user != null ? MapToViewModel(user) : null;
     }
 
-    public async Task<UserDto> CreateUserAsync(UserDto userViewModel)
+    public async Task<User> CreateUserAsync(User user)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = MapToEntity(userViewModel);
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        userViewModel.UserID = user.UserID;
-        return userViewModel;
+        return user;
     }
 
-    public async Task<UserDto> UpdateUserAsync(UserDto userViewModel)
+    public async Task<User> UpdateUserAsync(User user)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var user = await context.Users.FindAsync(userViewModel.UserID);
-        if (user == null)
-            throw new Exception($"User with ID {userViewModel.UserID} not found");
-
-        // Update properties
-        user.UserCategoryID = userViewModel.UserCategoryID;
-        user.UserName = userViewModel.UserName;
-        user.Password = userViewModel.Password;
-        user.EmailID = userViewModel.EmailID;
-        user.MobileNo = userViewModel.MobileNo;
-        user.CompanyID = userViewModel.CompanyID;
-        user.MAC = userViewModel.MAC;
-        user.IsActive = userViewModel.IsActive;
-
+        
         context.Users.Update(user);
         await context.SaveChangesAsync();
 
-        return userViewModel;
+        return user;
     }
 
     public async Task<bool> DeleteUserAsync(int userId)
@@ -88,44 +80,10 @@ public class UserService : IUserService
         return await context.Users.CountAsync();
     }
 
-    public async Task<List<UserDto>> GetUsersByRoleAsync(string role)
+    public async Task<List<User>> GetUsersByRoleAsync(string role)
     {
         // Since Role is not in the new schema, return all users
         // You can modify this based on UserCategoryID if needed
         return await GetAllUsersAsync();
     }
-
-    // Mapping methods
-    private UserDto MapToViewModel(User user)
-    {
-        return new UserDto
-        {
-            UserID = user.UserID,
-            UserCategoryID = user.UserCategoryID,
-            UserName = user.UserName ?? string.Empty,
-            Password = user.Password ?? string.Empty,
-            EmailID = user.EmailID,
-            MobileNo = user.MobileNo,
-            CompanyID = user.CompanyID,
-            MAC = user.MAC,
-            IsActive = user.IsActive ?? true
-        };
-    }
-
-    private User MapToEntity(UserDto viewModel)
-    {
-        return new User
-        {
-            UserID = viewModel.UserID,
-            UserCategoryID = viewModel.UserCategoryID,
-            UserName = viewModel.UserName,
-            Password = viewModel.Password,
-            EmailID = viewModel.EmailID,
-            MobileNo = viewModel.MobileNo,
-            CompanyID = viewModel.CompanyID,
-            MAC = viewModel.MAC,
-            IsActive = viewModel.IsActive
-        };
-    }
 }
-

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using TransportERP.Models.Services;
-using TransportERP.Models.Entities;
+using ERP.Models.Services;
+using ERP.Models.Entities;
 
 namespace ERP.Components.Layout
 {
@@ -138,25 +138,26 @@ namespace ERP.Components.Layout
             Navigation.NavigateTo(url);
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                isDarkMode = await JSRuntime.InvokeAsync<bool>("isDarkMode");
-                if (isDarkMode)
-                {
-                    await JSRuntime.InvokeVoidAsync("setTheme", "dark");
-                }
-                StateHasChanged();
-            }
-        }
+        //protected override async Task OnAfterRenderAsync(bool firstRender)
+        //{
+        //    if (firstRender)
+        //    {
+        //        isDarkMode = await JSRuntime.InvokeAsync<bool>("isDarkMode");
+        //        if (isDarkMode)
+        //        {
+        //            await JSRuntime.InvokeVoidAsync("setTheme", "dark");
+        //        }
+        //        StateHasChanged();
+        //    }
+        //}
 
-        private async Task ToggleTheme(MouseEventArgs e)
-        {
-            isDarkMode = !isDarkMode;
-            var theme = isDarkMode ? "dark" : "light";
-            await JSRuntime.InvokeVoidAsync("toggleTheme", theme, e.ClientX, e.ClientY);
-        }
+        //private async Task ToggleTheme(MouseEventArgs e)
+        //{
+
+        //    isDarkMode = !isDarkMode;
+        //    var theme = isDarkMode ? "dark" : "light";
+        //    await JSRuntime.InvokeVoidAsync("toggleTheme", theme, e.ClientX, e.ClientY);
+        //}
 
         private string GetUserInitials()
         {

@@ -1,6 +1,6 @@
 using System;
 
-namespace TransportERP.Models.Attributes
+namespace ERP.Models.Attributes
 {
     /// <summary>
     /// Attribute to configure how a field should be displayed in CRUD forms

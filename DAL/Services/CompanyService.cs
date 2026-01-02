@@ -1,74 +1,62 @@
 using Microsoft.EntityFrameworkCore;
-using TransportERP.Models.Entities;
-using TransportERP.Models.DTOs;
-using TransportERP.Models.DbContext;
+using ERP.Models.Entities;
+using ERP.Models.DbContext;
 
-namespace TransportERP.Models.Services;
+namespace ERP.Models.Services;
+
+public interface ICompanyService
+{
+    Task<List<Company>> GetAllCompaniesAsync();
+    Task<Company?> GetCompanyByIdAsync(int companyId);
+    Task<Company> CreateCompanyAsync(Company company);
+    Task<Company> UpdateCompanyAsync(Company company);
+    Task<bool> DeleteCompanyAsync(int companyId);
+    Task<int> GetTotalCompaniesCountAsync();
+    Task<List<Company>> GetActiveCompaniesAsync();
+}
 
 public class CompanyService : ICompanyService
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly IDbContextFactory<ERPDbContext> _contextFactory;
 
-    public CompanyService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public CompanyService(IDbContextFactory<ERPDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public async Task<List<CompanyDto>> GetAllCompaniesAsync()
+    public async Task<List<Company>> GetAllCompaniesAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var companies = await context.Companies
+        return await context.Companies
             .OrderByDescending(c => c.CompanyID)
             .ToListAsync();
-
-        return companies.Select(MapToViewModel).ToList();
     }
 
-    public async Task<CompanyDto?> GetCompanyByIdAsync(int companyId)
+    public async Task<Company?> GetCompanyByIdAsync(int companyId)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var company = await context.Companies.FindAsync(companyId);
-        return company != null ? MapToViewModel(company) : null;
+        return await context.Companies.FindAsync(companyId);
     }
 
-    public async Task<CompanyDto> CreateCompanyAsync(CompanyDto CompanyDto)
+    public async Task<Company> CreateCompanyAsync(Company company)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var company = MapToEntity(CompanyDto);
         company.CreatedDate = DateTime.Now;
 
         context.Companies.Add(company);
         await context.SaveChangesAsync();
 
-        CompanyDto.CompanyID = company.CompanyID;
-        return CompanyDto;
+        return company;
     }
 
-    public async Task<CompanyDto> UpdateCompanyAsync(CompanyDto CompanyDto)
+    public async Task<Company> UpdateCompanyAsync(Company company)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var company = await context.Companies.FindAsync(CompanyDto.CompanyID);
-        if (company == null)
-            throw new Exception($"Company with ID {CompanyDto.CompanyID} not found");
-
-        // Update properties
-        company.CompanyName = CompanyDto.CompanyName;
-        company.ShortCode = CompanyDto.ShortCode;
-        company.CompanyAddress = CompanyDto.CompanyAddress;
-        company.GSTNO = CompanyDto.GSTNO;
-        company.PANNO = CompanyDto.PANNO;
-        company.PhoneNo = CompanyDto.PhoneNo;
-        company.MobileNo = CompanyDto.MobileNo;
-        company.Mail = CompanyDto.Mail;
-        company.MailKey = CompanyDto.MailKey;
-        company.StartDate = CompanyDto.StartDate;
-        company.EndDate = CompanyDto.EndDate;
-        company.IsActive = CompanyDto.IsActive;
-
+        
         context.Companies.Update(company);
         await context.SaveChangesAsync();
 
-        return CompanyDto;
+        return company;
     }
 
     public async Task<bool> DeleteCompanyAsync(int companyId)
@@ -90,57 +78,12 @@ public class CompanyService : ICompanyService
         return await context.Companies.CountAsync();
     }
 
-    public async Task<List<CompanyDto>> GetActiveCompaniesAsync()
+    public async Task<List<Company>> GetActiveCompaniesAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var companies = await context.Companies
+        return await context.Companies
             .Where(c => c.IsActive == true)
             .OrderBy(c => c.CompanyName)
             .ToListAsync();
-
-        return companies.Select(MapToViewModel).ToList();
-    }
-
-    // Mapping methods
-    private CompanyDto MapToViewModel(Company company)
-    {
-        return new CompanyDto
-        {
-            CompanyID = company.CompanyID,
-            CompanyName = company.CompanyName ?? string.Empty,
-            ShortCode = company.ShortCode,
-            CompanyAddress = company.CompanyAddress,
-            GSTNO = company.GSTNO,
-            PANNO = company.PANNO,
-            PhoneNo = company.PhoneNo,
-            MobileNo = company.MobileNo,
-            Mail = company.Mail,
-            MailKey = company.MailKey,
-            StartDate = company.StartDate,
-            EndDate = company.EndDate,
-            CreatedDate = company.CreatedDate,
-            IsActive = company.IsActive ?? true
-        };
-    }
-
-    private Company MapToEntity(CompanyDto viewModel)
-    {
-        return new Company
-        {
-            CompanyID = viewModel.CompanyID,
-            CompanyName = viewModel.CompanyName,
-            ShortCode = viewModel.ShortCode,
-            CompanyAddress = viewModel.CompanyAddress,
-            GSTNO = viewModel.GSTNO,
-            PANNO = viewModel.PANNO,
-            PhoneNo = viewModel.PhoneNo,
-            MobileNo = viewModel.MobileNo,
-            Mail = viewModel.Mail,
-            MailKey = viewModel.MailKey,
-            StartDate = viewModel.StartDate,
-            EndDate = viewModel.EndDate,
-            CreatedDate = viewModel.CreatedDate,
-            IsActive = viewModel.IsActive
-        };
     }
 }

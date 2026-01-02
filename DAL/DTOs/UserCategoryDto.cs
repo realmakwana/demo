@@ -1,6 +1,6 @@
-using TransportERP.Models.Attributes;
+using ERP.Models.Attributes;
 
-namespace TransportERP.Models.DTOs;
+namespace ERP.Models.DTOs;
 
 /// <summary>
 /// User Category Data Transfer Object - Consolidated from UserCategoryViewModel

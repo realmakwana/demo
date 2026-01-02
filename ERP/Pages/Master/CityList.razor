@@ -1,0 +1,104 @@
+@page "/cities"
+@using ERP.Models.Entities
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
+<PageTitle>Cities - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentCity?.CityID == 0 ? "Add New City" : "Edit City")</h3>
+                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+            </div>
+
+            <EditForm Model="@currentCity" OnValidSubmit="SaveCity">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <!-- City Name -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCity.CityName" 
+                                   Placeholder="City Name *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentCity.CityName)" />
+                    </div>
+
+                    <!-- State -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCity.State" 
+                                   Placeholder="State"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Pincode -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCity.Pincode" 
+                                   Placeholder="Pincode"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-6 d-flex align-items-center">
+                        <SfCheckBox @bind-Checked="currentCity.IsActive" Label="Active" TChecked="bool"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentCity?.CityID == 0 ? "Save City" : "Update City")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="City"
+                    GridTitle="All Cities"
+                    EntityName="City"
+                    HelpText="Manage delivery locations and cities."
+                    DataSource="@cities"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteCity">
+            <GridColumns>
+                <GridColumn Field="@nameof(City.CityID)" HeaderText="ID" Width="80" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(City.CityName)" HeaderText="City Name" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(City.State)" HeaderText="State" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(City.Pincode)" HeaderText="Pincode" Width="120"></GridColumn>
+                <GridColumn Field="@nameof(City.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var city = context as City;
+                            <span class="@(city?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(city?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

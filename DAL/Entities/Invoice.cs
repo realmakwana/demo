@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TransportERP.Models.Entities
+namespace ERP.Models.Entities
 {
     public class Invoice : BaseEntity
     {
+        public int Id { get; set; }
+
         [Required]
         [StringLength(50)]
         public string InvoiceNumber { get; set; } = string.Empty;

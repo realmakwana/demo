@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
-using TransportERP.Models.Attributes;
+using ERP.Models.Attributes;
 
-namespace TransportERP.Models.DTOs
+namespace ERP.Models.DTOs
 {
     public class DriverDto
     {

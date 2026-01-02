@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using TransportERP.Models.Entities;
-using TransportERP.Models.Services;
+using ERP.Models.Entities;
+using ERP.Models.Services;
 
 namespace ERP.Components.Layout
 {

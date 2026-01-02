@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TransportERP.Models.Attributes;
+using ERP.Models.Attributes;
 
-namespace TransportERP.Models.Helpers
+namespace ERP.Models.Helpers
 {
     /// <summary>
     /// Helper class to extract CRUD metadata from entity types

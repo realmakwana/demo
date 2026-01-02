@@ -1,6 +1,6 @@
 @typeparam THeader where THeader : class, new()
 @typeparam TLineItem where TLineItem : class, new()
-@using TransportERP.Models.Helpers
+@using ERP.Models.Helpers
 @using System.Reflection
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Buttons
@@ -95,7 +95,7 @@ else if (!showForm)
             <GridColumns>
                 @GridColumns
                 
-                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center" Freeze="FreezeDirection.Right">
                     <Template>
                         @{
                             var item = context as THeader;
@@ -163,7 +163,7 @@ else
                         <GridColumns>
                             @LineItemGridColumns
                             
-                            <GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center">
+                            <GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center" Freeze="FreezeDirection.Right">
                                 <Template>
                                     @{
                                         var item = context as TLineItem;
@@ -200,7 +200,7 @@ else
     <!-- STICKY FOOTER -->
     <div class="sticky-footer">
         <SfButton CssClass="e-outline" OnClick="CancelForm">Cancel</SfButton>
-        <SfButton CssClass="e-primary" OnClick="SaveItem" IconCss="bi bi-save">Save @Title</SfButton>
+        <SfButton CssClass="e-primary" OnClick="SaveItem" IconCss="bi bi-save">@(isEditMode ? $"Update {Title}" : $"Save {Title}")</SfButton>
     </div>
 }
 

@@ -1,0 +1,201 @@
+@page "/settings"
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+
+<PageTitle>Settings - Transport ERP</PageTitle>
+
+<Breadcrumb Items="@breadcrumbItems" />
+
+<div class="settings-container fade-in">
+    <div class="settings-card">
+        <SfTab Height="auto">
+            <TabItems>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="General"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <h4 class="settings-section-title">Common Settings</h4>
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Language</span>
+                                    <span class="option-desc">Select your preferred display language</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfDropDownList TValue="string" TItem="string" DataSource="@languages" @bind-Value="@selectedLanguage" Width="180px" CssClass="e-outline"></SfDropDownList>
+                                </div>
+                            </div>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Timezone</span>
+                                    <span class="option-desc">Current time will show according to this</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfDropDownList TValue="string" TItem="string" DataSource="@timezones" @bind-Value="@selectedTimezone" Width="250px" CssClass="e-outline"></SfDropDownList>
+                                </div>
+                            </div>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Auto-Save Changes</span>
+                                    <span class="option-desc">Automatically save forms after editing</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfSwitch @bind-Checked="@autoSave"></SfSwitch>
+                                </div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Notifications"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <h4 class="settings-section-title">Email Notifications</h4>
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Invoice Alerts</span>
+                                    <span class="option-desc">Get notified when an invoice is paid or due</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfCheckBox @bind-Checked="@notifInvoice" Label="Enabled"></SfCheckBox>
+                                </div>
+                            </div>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">System Updates</span>
+                                    <span class="option-desc">Monthly newsletter and system maintenance alerts</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfCheckBox @bind-Checked="@notifSystem" Label="Enabled"></SfCheckBox>
+                                </div>
+                            </div>
+
+                            <h4 class="settings-section-title" style="margin-top: 32px;">Browser Notifications</h4>
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Real-time Push</span>
+                                    <span class="option-desc">Enable desktop push notifications</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfButton CssClass="e-outline e-small">Request Permission</SfButton>
+                                </div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Appearance"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <div class="tab-pane">
+                            <h4 class="settings-section-title">Theme Color</h4>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Switch To Mode</span>
+                                    <span class="option-desc">Select your preferred application Mode</span>
+                                </div>
+                                <div class="topbar-right">
+                                    @* Theme Toggle *@
+                                    <div class="topbar-icon" title="@(isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")" @onclick="ToggleTheme">
+                                        @if (isDarkMode)
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-sun rotate-center">
+                                                <circle cx="12" cy="12" r="5"></circle>
+                                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-moon rotate-center">
+                                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                            </svg>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Choose Color Theme</span>
+                                    <span class="option-desc">Select your preferred application color</span>
+                                </div>
+                            </div>
+
+                            <div class="color-grid-settings">
+                                @foreach (var color in themeColors)
+                                {
+                                    <div class="color-option-settings @(selectedThemeColor == color.Value ? "selected" : "")"
+                                         @onclick="() => SelectThemeColor(color.Value)"
+                                         title="@color.Name">
+                                        <div class="color-circle-settings" style="background: @color.Value;">
+                                            @if (selectedThemeColor == color.Value)
+                                            {
+                                                <i class="bi bi-check-lg" style="color: white; font-size: 14px;"></i>
+                                            }
+                                        </div>
+                                        <span class="color-name-settings">@color.Name</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <h4 class="settings-section-title" style="margin-top: 32px;">Visual Customization</h4>
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Sidebar Transparency</span>
+                                    <span class="option-desc">Make the left sidebar slightly glass-like</span>
+                                </div>
+                                <div class="option-control">
+                                    <SfSwitch @bind-Checked="@glassSidebar"></SfSwitch>
+                                </div>
+                            </div>
+
+                            <div class="settings-option">
+                                <div class="option-info">
+                                    <span class="option-title">Animation Speed</span>
+                                    <span class="option-desc">Control how fast page transitions happen</span>
+                                </div>
+                                <div class="option-control" style="width: 200px;">
+                                    <SfSlider TValue="int" @bind-Value="@animSpeed" Min="100" Max="500"></SfSlider>
+                                </div>
+                            </div>
+                        </div>
+                    </ContentTemplate>
+                </TabItem>
+            </TabItems>
+        </SfTab>
+
+        <div class="settings-footer">
+            <SfButton CssClass="e-outline" @onclick="SetDefaultTheme">
+                Discard
+            </SfButton>
+
+            @code {
+                void SetDefaultTheme()
+                {
+                    selectedThemeColor = "#2563eb";
+                }
+            }
+
+
+            <SfButton CssClass="e-primary" IconCss="bi bi-save" @onclick="ApplySettings">Apply Settings</SfButton>
+        </div>
+    </div>
+</div>

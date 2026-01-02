@@ -1,0 +1,220 @@
+@page "/drivers"
+@using ERP.Models.Entities
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+
+<PageTitle>Drivers - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentDriver?.Id == 0 ? "Add New Driver" : "Edit Driver")</h3>
+                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+            </div>
+
+            <EditForm Model="@currentDriver" OnValidSubmit="SaveDriver">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentDriver.Name" 
+                                   Placeholder="Full Name *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentDriver.Name)" />
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentDriver.Mobile" 
+                                   Placeholder="Mobile Number"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- License Number -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentDriver.LicenseNumber" 
+                                   Placeholder="License Number"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-6 d-flex align-items-center">
+                        <SfCheckBox @bind-Checked="currentDriver.IsActive" Label="Active" TChecked="bool"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentDriver?.Id == 0 ? "Save Driver" : "Update Driver")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="Driver"
+                    GridTitle="All Drivers"
+                    EntityName="Driver"
+                    HelpText="Manage fleet drivers and their information."
+                    DataSource="@drivers"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteDriver">
+            <CustomActions>
+                <SfButton CssClass="action-icon-btn view-btn" 
+                          IconCss="bi bi-eye" 
+                          OnClick="@(() => ViewDriver(context))"
+                          title="View Details"></SfButton>
+            </CustomActions>
+            <GridColumns>
+                <GridColumn Field="@nameof(Driver.Id)" HeaderText="ID" Width="80" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(Driver.Name)" HeaderText="Name" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(Driver.Mobile)" HeaderText="Mobile" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(Driver.LicenseNumber)" HeaderText="License No" Width="180"></GridColumn>
+                <GridColumn Field="@nameof(Driver.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var driver = context as Driver;
+                            <span class="@(driver?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(driver?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>
+
+<!-- View Details Modal -->
+<SfDialog Width="800px" IsModal="true" @bind-Visible="showViewModal" ShowCloseIcon="true">
+    <DialogTemplates>
+        <Header> Driver Profile Details </Header>
+        <Content>
+            @if (selectedDriverForView != null)
+            {
+                <div class="driver-profile-header">
+                    <div class="driver-avatar">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div class="driver-main-info">
+                        <h3>@selectedDriverForView.Name</h3>
+                        <p><i class="bi bi-telephone"></i> @selectedDriverForView.Mobile</p>
+                    </div>
+                </div>
+
+                <SfTab Height="auto" CssClass="driver-tabs">
+                    <TabItems>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="Basic Info"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <div class="tab-pane">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Full Name</div>
+                                        <div class="detail-value">@selectedDriverForView.Name</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Mobile Number</div>
+                                        <div class="detail-value">@selectedDriverForView.Mobile</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Created Date</div>
+                                        <div class="detail-value">@selectedDriverForView.CreatedDate.ToShortDateString()</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Status</div>
+                                        <div class="detail-value">
+                                            <span class="@(selectedDriverForView.IsActive ? "badge-success" : "badge-danger")">
+                                                @(selectedDriverForView.IsActive ? "Active" : "Inactive")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ContentTemplate>
+                        </TabItem>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="License Details"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <div class="tab-pane">
+                                    <div class="detail-row">
+                                        <div class="detail-label">License Number</div>
+                                        <div class="detail-value">@selectedDriverForView.LicenseNumber</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">License Type</div>
+                                        <div class="detail-value">Heavy Motor Vehicle (HMV)</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Expiry Date</div>
+                                        <div class="detail-value">12/12/2030</div>
+                                    </div>
+                                </div>
+                            </ContentTemplate>
+                        </TabItem>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="Documents"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <div class="tab-pane">
+                                    <div class="docs-grid">
+                                        <div class="doc-card">
+                                            <div class="doc-preview">
+                                                <img src="https://via.placeholder.com/150x100?text=License+Front" alt="License Front" />
+                                            </div>
+                                            <div class="doc-info">License Front</div>
+                                        </div>
+                                        <div class="doc-card">
+                                            <div class="doc-preview">
+                                                <img src="https://via.placeholder.com/150x100?text=Aadhar+Card" alt="Aadhar" />
+                                            </div>
+                                            <div class="doc-info">Aadhar Card</div>
+                                        </div>
+                                        <div class="doc-card">
+                                            <div class="doc-preview">
+                                                <img src="https://via.placeholder.com/150x100?text=Profile+Photo" alt="Profile" />
+                                            </div>
+                                            <div class="doc-info">Profile Photo</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ContentTemplate>
+                        </TabItem>
+                    </TabItems>
+                </SfTab>
+            }
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Close" IsPrimary="true" OnClick="@CloseViewModal" />
+    </DialogButtons>
+</SfDialog>

@@ -1,6 +1,6 @@
-using TransportERP.Models.Attributes;
+using ERP.Models.Attributes;
 
-namespace TransportERP.Models.DTOs;
+namespace ERP.Models.DTOs;
 
 /// <summary>
 /// Menu Rights Data Transfer Object - Consolidated from MenuRightsViewModel

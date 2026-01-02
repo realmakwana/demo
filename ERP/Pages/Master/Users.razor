@@ -1,0 +1,144 @@
+@page "/users"
+@using UserEntity = ERP.Models.Entities.User
+@using UserCategoryEntity = ERP.Models.Entities.UserCategory
+@using Company = ERP.Models.Entities.Company
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+
+<PageTitle>Users - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentUser?.UserID == 0 ? "Add New User" : "Edit User")</h3>
+                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+            </div>
+
+            <EditForm Model="@currentUser" OnValidSubmit="SaveUser">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <!-- Username -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentUser.UserName" 
+                                   Placeholder="Username *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentUser.UserName)" />
+                    </div>
+
+                    <!-- Password -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentUser.Password" 
+                                   Placeholder="Password *"
+                                   Type="InputType.Password"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentUser.Password)" />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentUser.EmailID" 
+                                   Placeholder="Email Address"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentUser.MobileNo" 
+                                   Placeholder="Mobile Number"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                    </div>
+
+                    <!-- User Category -->
+                    <div class="col-md-6">
+                        <SfDropDownList TValue="int" TItem="UserCategoryEntity" 
+                                        @bind-Value="currentUser.UserCategoryID" 
+                                        DataSource="@userCategories" 
+                                        Placeholder="Select Category *"
+                                        FloatLabelType="FloatLabelType.Auto"
+                                        CssClass="e-outline">
+                            <DropDownListFieldSettings Value="UserCategoryID" Text="UserCategoryName"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                        <ValidationMessage For="@(() => currentUser.UserCategoryID)" />
+                    </div>
+
+                    <!-- Company -->
+                    <div class="col-md-6">
+                        <SfDropDownList TValue="int?" TItem="ERP.Models.Entities.Company" 
+                                        @bind-Value="currentUser.CompanyID" 
+                                        DataSource="@companies" 
+                                        Placeholder="Select Company"
+                                        FloatLabelType="FloatLabelType.Auto"
+                                        CssClass="e-outline">
+                            <DropDownListFieldSettings Value="CompanyID" Text="CompanyName"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-12">
+                        <SfCheckBox @bind-Checked="currentUser.IsActive" Label="Active" TChecked="bool?"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentUser?.UserID == 0 ? "Save User" : "Update User")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid - Only show when form is closed -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="UserEntity"
+                    GridTitle="All Users"
+                    EntityName="User"
+                    HelpText="Manage system users, assign roles, and control access permissions"
+                    DataSource="@users"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteUser">
+            <GridColumns>
+                <GridColumn Field="@nameof(UserEntity.UserID)" HeaderText="ID" Width="80" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(UserEntity.UserName)" HeaderText="User Name" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(UserEntity.EmailID)" HeaderText="Email" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(UserEntity.MobileNo)" HeaderText="Mobile" Width="120"></GridColumn>
+                <GridColumn Field="@nameof(UserEntity.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var user = context as UserEntity;
+                            <span class="@(user?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(user?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

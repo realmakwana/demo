@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TransportERP.Models.Entities
+namespace ERP.Models.Entities
 {
     [Table("tblUserCategory")]
     public class UserCategory

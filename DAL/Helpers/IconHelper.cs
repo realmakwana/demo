@@ -1,4 +1,4 @@
-namespace TransportERP.Models.Helpers
+namespace ERP.Models.Helpers
 {
     public static class IconHelper
     {
