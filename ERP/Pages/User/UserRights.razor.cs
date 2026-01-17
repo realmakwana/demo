@@ -52,15 +52,37 @@ namespace ERP.Pages.User
             if (selectedUserId == 0) return;
 
             isLoading = true;
+            // Get all menus, filter valid ones matching Left Menu logic (Active only)
             var allMenus = await MenuService.GetAllMenusAsync();
+            var activeMenus = allMenus.Where(m => m.IsActive).ToList();
+
             var userRights = await MenuService.GetUserRightsListAsync(selectedUserId);
 
-            menuRights = allMenus.Select(m => {
+            // Sort hierarchically: Parent -> Children
+            var sortedMenus = new List<(Menu Menu, int Level)>();
+            void AddMenusRecursively(int parentId, int level)
+            {
+                var children = activeMenus.Where(m => m.ParentMenuID == parentId).OrderBy(m => m.Sequence).ToList();
+                foreach (var child in children)
+                {
+                    sortedMenus.Add((child, level));
+                    // Recurse for children (Works for multiple levels)
+                    AddMenusRecursively(child.MenuID, level + 1);
+                }
+            }
+            
+            // Start with root menus
+            AddMenusRecursively(0, 0);
+
+            menuRights = sortedMenus.Select(item => {
+                var m = item.Menu;
+                var level = item.Level;
                 var existing = userRights.FirstOrDefault(ur => ur.MenuID == m.MenuID);
                 return new MenuRights
                 {
                     MenuID = m.MenuID,
                     MenuDispName = m.MenuDispName,
+                    Level = level,
                     ParentMenuID = m.ParentMenuID,
                     IsShow = existing?.IsShow ?? false,
                     IsAdd = existing?.IsAdd ?? false,
@@ -69,12 +91,19 @@ namespace ERP.Pages.User
                     IsPrint = existing?.IsPrint ?? false,
                     IsExport = existing?.IsExport ?? false,
                     IsVerify = existing?.IsVerify ?? false,
-                    UserWiseMenuID = existing?.UserWiseMenuID ?? 0
+                    UserWiseMenuID = existing?.UserWiseMenuID ?? 0,
+                    IsActive = true
                 };
             }).ToList();
 
             isLoading = false;
             StateHasChanged();
+        }
+
+        private void OnAllRightsChanged(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args, MenuRights item)
+        {
+            item.IsAllSelected = args.Checked;
+            StateHasChanged(); // Force re-render to update other checkboxes in the row
         }
 
         private void SetAllRights(bool status)

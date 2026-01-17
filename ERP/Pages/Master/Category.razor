@@ -1,0 +1,83 @@
+@page "/Category"
+@using CategoryEntity = ERP.Models.Entities.Category
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@inherits ERP.Components.Base.CrudComponentBase
+<PageTitle>Category - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentCategory?.CatID == 0 ? "Add New Category" : "Edit Category")</h3>
+            </div>
+
+            <EditForm Model="@currentCategory" OnValidSubmit="SaveCategory">
+                <DataAnnotationsValidator />
+                <div class="col-md-4">
+                    <!-- Category Name -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCategory.CatName"
+                                   Placeholder="Category Name *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentCategory.CatName)" />
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-12">
+                        <SfCheckBox @bind-Checked="currentCategory.IsActive" Label="Active" TChecked="bool"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentCategory?.CatID == 0 ? "Save Category" : "Update Category")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="CategoryEntity"
+                    GridTitle="All Categorys"
+                    EntityName="Category"
+                    HelpText="Manage Category records and their information."
+                    DataSource="@Categories"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteCategory">
+            <GridColumns>
+                <GridColumn Field="@nameof(CategoryEntity.CatID)" HeaderText="ID" Width="80" Visible="false" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(CategoryEntity.CatName)" HeaderText="Category Name" Width="200"></GridColumn>
+                <GridColumn Field=@nameof(CategoryEntity.CatTypeID) HeaderText="Category Type" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(CategoryEntity.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var Category = context as CategoryEntity;
+                            <span class="@(Category?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(Category?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

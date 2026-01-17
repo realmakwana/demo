@@ -22,6 +22,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<IMenuService, MenuService>();
+        services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IStudentAttendanceService, StudentAttendanceService>();
+        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IInvoiceService, InvoiceService>();
+        services.AddScoped<ICategoryService, CategoryService>();
 
         return services;
     }

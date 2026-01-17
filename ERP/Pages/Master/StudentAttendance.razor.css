@@ -1,0 +1,49 @@
+﻿/* Common badge style */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* Present = Green */
+.status-active {
+    background-color: #28a745;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+/* Absent = Red */
+.status-inactive {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+/* Make all form inputs same height */
+.uniform-input input,
+.uniform-input .e-input,
+.uniform-input .e-control,
+.uniform-input .e-datepicker,
+.uniform-input .e-input-group {
+    height: 44px !important;
+    min-height: 44px !important;
+    line-height: 44px !important;
+}
+
+    /* Syncfusion input padding fix */
+    .uniform-input .e-input-group input {
+        padding: 0 12px !important;
+    }
+
+    /* AutoSuggest custom input fix */
+    .uniform-input input.form-control {
+        height: 44px !important;
+    }

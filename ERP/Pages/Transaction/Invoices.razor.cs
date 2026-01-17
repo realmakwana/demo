@@ -5,13 +5,21 @@ using ERP.Models.Services;
 
 namespace ERP.Pages.Transaction
 {
+    /// <summary>
+    /// Code-behind for Invoices page component
+    /// </summary>
     public partial class Invoices : ComponentBase
     {
+        [Inject] private IInvoiceService InvoiceService { get; set; } = default!;
+        [Inject] private ICustomerService CustomerService { get; set; } = default!;
         [Inject] private ToastService ToastService { get; set; } = default!;
         [Inject] private IMenuService MenuService { get; set; } = default!;
         [Inject] private AuthService AuthService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
+        /// <summary>
+        /// Breadcrumb navigation items
+        /// </summary>
         private List<AppBreadcrumbItem> breadcrumbItems = new()
         {
             new() { Label = "Home", Url = "/" },
@@ -22,18 +30,24 @@ namespace ERP.Pages.Transaction
         private List<Invoice> invoices = new();
         private Invoice? currentInvoice;
         private List<InvoiceItem> currentInvoiceItems = new();
-        private InvoiceItem newItem = new() { Quantity = 1, UnitPrice = 0 };
+        private InvoiceItem newItem = new() { qty = 1, rate = 0, discount = 0 };
         private bool showForm = false;
-        private List<string> categories = new() { "Freight", "Loading", "Unloading", "Detention", "Other" };
         private UserWiseMenu? currentRights;
+        private List<Customer> customers = new();
 
+        /// <summary>
+        /// Initializes the component and loads data
+        /// </summary>
         protected override async Task OnInitializedAsync()
         {
-            GenerateDummyCustomers();
-            LoadInvoices();
+            await LoadInvoices();
             await LoadRights();
+            await LoadCustomers();
         }
 
+        /// <summary>
+        /// Loads user rights for the current page
+        /// </summary>
         private async Task LoadRights()
         {
             if (AuthService.IsAuthenticated)
@@ -44,189 +58,231 @@ namespace ERP.Pages.Transaction
             }
         }
 
-        private void LoadInvoices()
+        /// <summary>
+        /// Loads all invoices from the database
+        /// </summary>
+        private async Task LoadInvoices()
         {
-            var random = new Random();
-            var customerNames = new[] { "ABC Logistics", "XYZ Traders", "PMP Transport", "Sharma Carriers", "Gupta Freight", 
-                                       "Fast Movers Ltd", "Quick Transport", "Reliable Logistics", "Express Carriers", "Swift Freight" };
-            var cities = new[] { "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Pune", "Hyderabad", "Ahmedabad" };
-            var categoryList = new[] { "Freight", "Loading", "Unloading", "Detention", "Other" };
-            
-            invoices = new List<Invoice>();
-            
-            for (int i = 1; i <= 20; i++)
+            try
             {
-                var customerName = customerNames[random.Next(customerNames.Length)];
-                var city = cities[random.Next(cities.Length)];
-                var itemCount = random.Next(1, 4);
-                var items = new List<InvoiceItem>();
-                
-                for (int j = 1; j <= itemCount; j++)
-                {
-                    var unitPrice = random.Next(10000, 100000);
-                    var quantity = random.Next(1, 5);
-                    items.Add(new InvoiceItem
-                    {
-                        Id = j,
-                        ItemName = $"Service {j}",
-                        Description = $"{city} to {cities[random.Next(cities.Length)]}",
-                        Category = categoryList[random.Next(categoryList.Length)],
-                        Quantity = quantity,
-                        UnitPrice = unitPrice,
-                        Amount = unitPrice * quantity
-                    });
-                }
-                
-                var subtotal = items.Sum(x => x.Amount);
-                var tax = subtotal * 0.18m;
-                
-                invoices.Add(new Invoice
-                {
-                    Id = i,
-                    InvoiceNumber = $"INV-2024-{i:D3}",
-                    InvoiceDate = DateTime.Now.AddDays(-random.Next(1, 60)),
-                    CustomerName = customerName,
-                    CustomerPhone = $"98765{random.Next(10000, 99999)}",
-                    CustomerEmail = $"contact@{customerName.Replace(" ", "").ToLower()}.com",
-                    CustomerAddress = $"{random.Next(1, 999)} Main Street, {city}",
-                    Items = items,
-                    SubTotal = subtotal,
-                    TaxAmount = tax,
-                    TotalAmount = subtotal + tax
-                });
+                invoices = await InvoiceService.GetAllInvoicesAsync();
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowToast($"Error loading invoices: {ex.Message}", ToastLevel.Error);
+                invoices = new List<Invoice>();
             }
         }
 
-        private void OpenAddForm()
+        /// <summary>
+        /// Loads customers for dropdown
+        /// </summary>
+        private async Task LoadCustomers()
         {
-            currentInvoice = new Invoice
+            try
             {
-                InvoiceDate = DateTime.Now,
-                InvoiceNumber = $"INV-{DateTime.Now:yyyyMMdd}-{invoices.Count + 1}"
-            };
-            currentInvoiceItems = new List<InvoiceItem>();
-            showForm = true;
+                customers = await CustomerService.GetActiveCustomersAsync();
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowToast($"Error loading customers: {ex.Message}", ToastLevel.Warning);
+                customers = new List<Customer>();
+            }
         }
 
+        /// <summary>
+        /// Opens the form to add a new invoice
+        /// </summary>
+        private async void OpenAddForm()
+        {
+            try
+            {
+                var invoiceNumber = await InvoiceService.GenerateInvoiceNumberAsync();
+                currentInvoice = new Invoice
+                {
+                    invoice_date = DateTime.Now,
+                    invoice_no = invoiceNumber,
+                    CustomerID = 0
+                };
+                currentInvoiceItems = new List<InvoiceItem>();
+                showForm = true;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowToast($"Error opening form: {ex.Message}", ToastLevel.Error);
+            }
+        }
+
+        /// <summary>
+        /// Opens the form to edit an existing invoice
+        /// </summary>
+        /// <param name="invoice">Invoice entity to edit</param>
         private void OpenEditForm(Invoice invoice)
         {
             currentInvoice = new Invoice
             {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber,
-                InvoiceDate = invoice.InvoiceDate,
-                CustomerName = invoice.CustomerName,
-                CustomerPhone = invoice.CustomerPhone,
-                CustomerEmail = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                SubTotal = invoice.SubTotal,
-                TaxAmount = invoice.TaxAmount,
-                TotalAmount = invoice.TotalAmount
+                InvoiceID = invoice.InvoiceID,
+                invoice_no = invoice.invoice_no,
+                invoice_date = invoice.invoice_date,
+                CustomerID = invoice.CustomerID
             };
             
             currentInvoiceItems = invoice.Items.Select(i => new InvoiceItem
             {
-                Id = i.Id,
-                ItemName = i.ItemName,
-                Description = i.Description,
-                Category = i.Category,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice,
-                Amount = i.Amount
+                LineItemID = i.LineItemID,
+                InvoiceId = i.InvoiceId,
+                item_name = i.item_name,
+                remarks = i.remarks,
+                qty = i.qty,
+                rate = i.rate,
+                discount = i.discount,
+                amount = i.amount
             }).ToList();
             
             showForm = true;
         }
 
+        /// <summary>
+        /// Closes the form and resets state
+        /// </summary>
         private void CloseForm()
         {
             showForm = false;
             currentInvoice = null;
             currentInvoiceItems = new List<InvoiceItem>();
+            newItem = new InvoiceItem { qty = 1, rate = 0, discount = 0 };
         }
 
+        /// <summary>
+        /// Adds a line item to the current invoice
+        /// </summary>
         private void AddLineItem()
         {
-            if (string.IsNullOrWhiteSpace(newItem.ItemName)) return;
+            if (string.IsNullOrWhiteSpace(newItem.item_name))
+            {
+                ToastService.ShowToast("Item name is required", ToastLevel.Warning);
+                return;
+            }
 
-            newItem.Id = currentInvoiceItems.Any() ? currentInvoiceItems.Max(i => i.Id) + 1 : 1;
-            newItem.Amount = newItem.Quantity * newItem.UnitPrice;
+            newItem.LineItemID = currentInvoiceItems.Any() ? currentInvoiceItems.Max(i => i.LineItemID) + 1 : 1;
+            newItem.amount = (newItem.qty * newItem.rate) - newItem.discount;
             currentInvoiceItems.Add(newItem);
             
-            newItem = new InvoiceItem { Quantity = 1, UnitPrice = 0 };
-            UpdateTotals();
+            newItem = new InvoiceItem { qty = 1, rate = 0, discount = 0 };
         }
 
+        /// <summary>
+        /// Removes a line item from the current invoice
+        /// </summary>
+        /// <param name="item">Item to remove</param>
         private void RemoveLineItem(InvoiceItem item)
         {
             currentInvoiceItems.Remove(item);
-            UpdateTotals();
         }
 
-        private void UpdateTotals()
+        /// <summary>
+        /// Calculates total amount from line items
+        /// </summary>
+        /// <returns>Total amount</returns>
+        private decimal CalculateTotal()
         {
-            if (currentInvoice == null) return;
-            currentInvoice.SubTotal = currentInvoiceItems.Sum(i => i.Amount);
-            currentInvoice.TaxAmount = currentInvoice.SubTotal * 0.18m;
-            currentInvoice.TotalAmount = currentInvoice.SubTotal + currentInvoice.TaxAmount;
+            return currentInvoiceItems.Sum(i => i.amount);
         }
 
-        private void SaveInvoice()
+        /// <summary>
+        /// Saves the invoice (create or update)
+        /// </summary>
+        private async Task SaveInvoice()
         {
             if (currentInvoice == null) return;
 
-            currentInvoice.Items = currentInvoiceItems;
-            UpdateTotals();
-
-            if (currentInvoice.Id == 0)
+            if (!currentInvoiceItems.Any())
             {
-                currentInvoice.Id = invoices.Any() ? invoices.Max(i => i.Id) + 1 : 1;
-                invoices.Add(currentInvoice);
-                ToastService.ShowToast("Invoice created successfully!", ToastLevel.Success);
+                ToastService.ShowToast("Please add at least one item to the invoice", ToastLevel.Warning);
+                return;
             }
-            else
+
+            if (currentInvoice.CustomerID == 0)
             {
-                var index = invoices.FindIndex(i => i.Id == currentInvoice.Id);
-                if (index >= 0)
+                ToastService.ShowToast("Please select a customer", ToastLevel.Warning);
+                return;
+            }
+
+            try
+            {
+                currentInvoice.Items = currentInvoiceItems;
+
+                if (currentInvoice.InvoiceID == 0)
                 {
-                    invoices[index] = currentInvoice;
+                    currentInvoice.CreatedBy = AuthService.UserId;
+                    currentInvoice.IsActive = true;
+                    await InvoiceService.CreateInvoiceAsync(currentInvoice);
+                    ToastService.ShowToast("Invoice created successfully!", ToastLevel.Success);
+                }
+                else
+                {
+                    currentInvoice.ModifiedBy = AuthService.UserId;
+                    await InvoiceService.UpdateInvoiceAsync(currentInvoice);
                     ToastService.ShowToast("Invoice updated successfully!", ToastLevel.Success);
                 }
+
+                await LoadInvoices();
+                CloseForm();
             }
-            
-            CloseForm();
-        }
-
-        private void DeleteInvoice(Invoice invoice)
-        {
-            invoices.Remove(invoice);
-            ToastService.ShowToast("Invoice deleted successfully!", ToastLevel.Success);
-        }
-
-        private List<string> dummyCustomers = new();
-
-        private void GenerateDummyCustomers()
-        {
-            var prefixes = new[] { "Alpha", "Beta", "Gamma", "Delta", "Fast", "Super", "Mega", "Quick", "Smart", "Global", "Rapid", "Prime", "Elite", "Supreme" };
-            var suffixes = new[] { "Logistics", "Transport", "Movers", "Carriers", "Freight", "Solutions", "Services", "Traders", "Enterprises", "Industries", "Supply Chain", "Express" };
-            var locations = new[] { "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Pune", "Hyderabad", "Ahmedabad", "Jaipur", "Surat", "Indore", "Bhopal" };
-
-            var random = new Random();
-            for (int i = 0; i < 5000; i++)
+            catch (Exception ex)
             {
-                var name = $"{prefixes[random.Next(prefixes.Length)]} {suffixes[random.Next(suffixes.Length)]} {locations[random.Next(locations.Length)]} ({random.Next(1000, 9999)})";
-                dummyCustomers.Add(name);
+                ToastService.ShowToast($"Error saving invoice: {ex.Message}", ToastLevel.Error);
             }
-            
-            dummyCustomers.AddRange(new[] { "ABC Logistics", "XYZ Traders", "PMP Transport", "Sharma Carriers", "Gupta Freight" });
-            dummyCustomers.Sort();
+        }
+        /// <summary>
+        /// Moves an existing line item back to the entry form for modification.
+        /// </summary>
+        private void EditLineItem(InvoiceItem item)
+        {
+            if (item != null)
+            {
+                newItem = new InvoiceItem
+                {
+                    LineItemID = item.LineItemID,
+                    item_name = item.item_name,
+                    remarks = item.remarks,
+                    qty = item.qty,
+                    rate = item.rate,
+                    discount = item.discount,
+                    amount = item.amount,
+                    InvoiceId = item.InvoiceId
+                };
+                currentInvoiceItems.Remove(item);
+
+                StateHasChanged();
+                ToastService.ShowToast("Item loaded for editing. Modify and click 'Add' again.", ToastLevel.Info);
+            }
         }
 
-        private async Task<IEnumerable<string>> SearchCustomers(string searchText)
+        /// <summary>
+        /// Deletes an invoice
+        /// </summary>
+        /// <param name="invoice">Invoice entity to delete</param>
+        private async Task DeleteInvoice(Invoice invoice)
         {
-            await Task.Delay(100);
-            if (string.IsNullOrWhiteSpace(searchText)) return Enumerable.Empty<string>();
-            return dummyCustomers.Where(c => c.Contains(searchText, StringComparison.OrdinalIgnoreCase)).Take(50);
+            try
+            {
+                var success = await InvoiceService.DeleteInvoiceAsync(invoice.InvoiceID);
+                if (success)
+                {
+                    ToastService.ShowToast("Invoice deleted successfully!", ToastLevel.Success);
+                    await LoadInvoices();
+                }
+                else
+                {
+                    ToastService.ShowToast("Invoice not found!", ToastLevel.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowToast($"Error deleting invoice: {ex.Message}", ToastLevel.Error);
+            }
         }
     }
 }

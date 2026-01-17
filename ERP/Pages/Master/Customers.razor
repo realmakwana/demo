@@ -1,0 +1,105 @@
+@page "/customers"
+@using CustomerEntity = ERP.Models.Entities.Customer
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@inherits ERP.Components.Base.CrudComponentBase
+<PageTitle>Customers - Transport ERP</PageTitle>
+
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- Manual Form Section -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentCustomer?.CustomerID == 0 ? "Add New Customer" : "Edit Customer")</h3>
+            </div>
+
+            <EditForm Model="@currentCustomer" OnValidSubmit="SaveCustomer">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <!-- Customer Name -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCustomer.CustomerName" 
+                                   Placeholder="Customer Name *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentCustomer.CustomerName)" />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCustomer.Email" 
+                                   Placeholder="Email *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentCustomer.Email)" />
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="col-md-6">
+                        <SfTextBox @bind-Value="currentCustomer.PhoneNumber" 
+                                   Placeholder="Phone Number *"
+                                   FloatLabelType="FloatLabelType.Auto"
+                                   CssClass="e-outline">
+                        </SfTextBox>
+                        <ValidationMessage For="@(() => currentCustomer.PhoneNumber)" />
+                    </div>
+
+                    <!-- Is Active -->
+                    <div class="col-md-12">
+                        <SfCheckBox @bind-Checked="currentCustomer.IsActive" Label="Active" TChecked="bool?"></SfCheckBox>
+                    </div>
+                </div>
+
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentCustomer?.CustomerID == 0 ? "Save Customer" : "Update Customer")
+                    </SfButton>
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <!-- Common Grid -->
+    @if (!showForm)
+    {
+        <CommonGrid TEntity="CustomerEntity"
+                    GridTitle="All Customers"
+                    EntityName="Customer"
+                    HelpText="Manage customer records and their information."
+                    DataSource="@customers"
+                    CanAdd="@(currentRights?.IsAdd ?? true)"
+                    CanEdit="@(currentRights?.IsEdit ?? true)"
+                    CanDelete="@(currentRights?.IsDelete ?? true)"
+                    OnAdd="OpenAddForm"
+                    OnEdit="OpenEditForm"
+                    OnDelete="DeleteCustomer">
+            <GridColumns>
+                <GridColumn Field="@nameof(CustomerEntity.CustomerID)" HeaderText="ID" Width="80" Visible="false" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(CustomerEntity.CustomerName)" HeaderText="Customer Name" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(CustomerEntity.Email)" HeaderText="Email" Width="200"></GridColumn>
+                <GridColumn Field="@nameof(CustomerEntity.PhoneNumber)" HeaderText="Phone Number" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(CustomerEntity.IsActive)" HeaderText="Status" Width="100">
+                    <Template>
+                        @{
+                            var customer = context as CustomerEntity;
+                            <span class="@(customer?.IsActive ?? false ? "badge-success" : "badge-danger")">
+                                @(customer?.IsActive ?? false ? "Active" : "Inactive")
+                            </span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </CommonGrid>
+    }
+</div>

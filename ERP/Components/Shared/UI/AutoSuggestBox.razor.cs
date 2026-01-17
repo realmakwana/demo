@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Data;
 using Syncfusion.Blazor.Inputs;
+using ERP.Models.Entities;
 
 namespace ERP.Components.Shared.UI
 {
@@ -24,6 +25,10 @@ namespace ERP.Components.Shared.UI
 
         [Parameter]
         public Func<string, Task<IEnumerable<string>>>? SearchFunction { get; set; }
+
+        [Parameter]
+        public Func<string, Task<IEnumerable<string>>>? SearchStudentFunction { get; set; }
+
 
         private IEnumerable<string> _currentData = Enumerable.Empty<string>();
         private SfAutoComplete<string, string>? AutoCompleteObj;

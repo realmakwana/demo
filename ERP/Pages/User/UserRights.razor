@@ -92,9 +92,24 @@
                     <Template>
                         @{
                             var item = context as MenuRights;
-                            <div class="@(item.ParentMenuID == 0 ? "fw-bold" : "ps-4 text-muted")">
+                            <div style="padding-left: @(item.Level * 1.5)rem" class="@(item.Level == 0 ? "fw-bold" : "text-muted")">
                                 @item.MenuDispName
                             </div>
+                        }
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Field="@nameof(MenuRights.IsAllSelected)" 
+                            HeaderText="All" 
+                            Width="70" 
+                            TextAlign="TextAlign.Center">
+                    <Template>
+                        @{
+                            var item = context as MenuRights;
+                            if (item.ParentMenuID != 0)
+                            {
+                                <SfCheckBox Checked="@item.IsAllSelected" ValueChange="@((args) => OnAllRightsChanged(args, item))" TChecked="bool"></SfCheckBox>
+                            }
                         }
                     </Template>
                 </GridColumn>

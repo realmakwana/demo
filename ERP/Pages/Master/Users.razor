@@ -124,7 +124,7 @@
                     OnEdit="OpenEditForm"
                     OnDelete="DeleteUser">
             <GridColumns>
-                <GridColumn Field="@nameof(UserEntity.UserID)" HeaderText="ID" Width="80" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(UserEntity.UserID)" HeaderText="ID" Visible="false" Width="80" IsPrimaryKey="true"></GridColumn>
                 <GridColumn Field="@nameof(UserEntity.UserName)" HeaderText="User Name" Width="150"></GridColumn>
                 <GridColumn Field="@nameof(UserEntity.EmailID)" HeaderText="Email" Width="200"></GridColumn>
                 <GridColumn Field="@nameof(UserEntity.MobileNo)" HeaderText="Mobile" Width="120"></GridColumn>

@@ -19,8 +19,7 @@
     {
         <div class="form-container fade-in">
             <div class="form-header">
-                <h3>@(currentInvoice.Id == 0 ? "Create New Invoice" : "Edit Invoice")</h3>
-                <SfButton CssClass="e-outline" IconCss="bi bi-x" OnClick="CloseForm">Close</SfButton>
+                <h3>@(currentInvoice.InvoiceID == 0 ? "Create New Invoice" : "Edit Invoice")</h3>
             </div>
 
             <EditForm Model="@currentInvoice" OnValidSubmit="SaveInvoice">
@@ -30,61 +29,34 @@
                 <div class="row g-4 mb-4">
                     <!-- Invoice Number -->
                     <div class="col-md-4">
-                        <SfTextBox @bind-Value="currentInvoice.InvoiceNumber" 
+                        <SfTextBox @bind-Value="currentInvoice.invoice_no" 
                                    Placeholder="Invoice Number *"
                                    FloatLabelType="FloatLabelType.Auto"
                                    CssClass="e-outline">
                         </SfTextBox>
-                        <ValidationMessage For="@(() => currentInvoice.InvoiceNumber)" />
+                        <ValidationMessage For="@(() => currentInvoice.invoice_no)" />
                     </div>
 
                     <!-- Invoice Date -->
                     <div class="col-md-4">
-                        <SfDatePicker TValue="DateTime" @bind-Value="currentInvoice.InvoiceDate" 
+                        <SfDatePicker TValue="DateTime" @bind-Value="currentInvoice.invoice_date" 
                                      Placeholder="Invoice Date *"
                                      FloatLabelType="FloatLabelType.Auto"
                                      CssClass="e-outline">
                         </SfDatePicker>
-                        <ValidationMessage For="@(() => currentInvoice.InvoiceDate)" />
+                        <ValidationMessage For="@(() => currentInvoice.invoice_date)" />
                     </div>
 
-                    <!-- Customer Name -->
+                    <!-- Customer -->
                     <div class="col-md-4">
-                        <AutoSuggestBox @bind-Value="currentInvoice.CustomerName" 
-                                       Placeholder="Customer Name *"
-                                       SearchFunction="SearchCustomers"
+                        <SfDropDownList TValue="int" TItem="Customer" @bind-Value="currentInvoice.CustomerID" 
+                                       DataSource="@customers" 
+                                       Placeholder="Select Customer *"
                                        FloatLabelType="FloatLabelType.Auto"
                                        CssClass="e-outline">
-                        </AutoSuggestBox>
-                        <ValidationMessage For="@(() => currentInvoice.CustomerName)" />
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="col-md-4">
-                        <SfTextBox @bind-Value="currentInvoice.CustomerPhone" 
-                                   Placeholder="Phone Number"
-                                   FloatLabelType="FloatLabelType.Auto"
-                                   CssClass="e-outline">
-                        </SfTextBox>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="col-md-4">
-                        <SfTextBox @bind-Value="currentInvoice.CustomerEmail" 
-                                   Placeholder="Email Address"
-                                   FloatLabelType="FloatLabelType.Auto"
-                                   CssClass="e-outline">
-                        </SfTextBox>
-                    </div>
-
-                    <!-- Address -->
-                    <div class="col-md-4">
-                        <SfTextBox @bind-Value="currentInvoice.CustomerAddress" 
-                                   Multiline="true"
-                                   Placeholder="Customer Address"
-                                   FloatLabelType="FloatLabelType.Auto"
-                                   CssClass="e-outline">
-                        </SfTextBox>
+                            <DropDownListFieldSettings Value="CustomerID" Text="CustomerName"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                        <ValidationMessage For="@(() => currentInvoice.CustomerID)" />
                     </div>
                 </div>
 
@@ -92,23 +64,28 @@
                 <!-- Line Item Entry Form -->
                 <div class="line-item-entry p-3 mb-3 border rounded bg-light">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-3">
-                            <SfTextBox @bind-Value="newItem.ItemName" Placeholder="Item Name" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
+                        <div class="col-md-4">
+                            <SfTextBox @bind-Value="newItem.item_name" Placeholder="Item Name" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
                         </div>
                         <div class="col-md-3">
-                            <SfTextBox @bind-Value="newItem.Description" Placeholder="Description" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
-                        </div>
-                        <div class="col-md-2">
-                            <SfDropDownList TValue="string" TItem="string" @bind-Value="newItem.Category" DataSource="@categories" Placeholder="Category" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfDropDownList>
+                            <SfTextBox @bind-Value="newItem.remarks" Placeholder="Remarks" FloatLabelType="FloatLabelType.Auto" CssClass="e-outline"></SfTextBox>
                         </div>
                         <div class="col-md-1">
-                            <SfNumericTextBox TValue="int" @bind-Value="newItem.Quantity" Placeholder="Qty" FloatLabelType="FloatLabelType.Auto" Min="1" CssClass="e-outline"></SfNumericTextBox>
+                            <SfNumericTextBox TValue="int" @bind-Value="newItem.qty" Placeholder="Qty" FloatLabelType="FloatLabelType.Auto" Min="1" CssClass="e-outline"></SfNumericTextBox>
                         </div>
                         <div class="col-md-2">
-                            <SfNumericTextBox TValue="decimal" @bind-Value="newItem.UnitPrice" Placeholder="Price" FloatLabelType="FloatLabelType.Auto" Format="C2" CssClass="e-outline"></SfNumericTextBox>
+                            <SfNumericTextBox TValue="decimal" @bind-Value="newItem.rate" Placeholder="Rate" FloatLabelType="FloatLabelType.Auto" Format="C2" CssClass="e-outline"></SfNumericTextBox>
                         </div>
                         <div class="col-md-1">
-                            <SfButton CssClass="e-primary w-100" IconCss="bi bi-plus" OnClick="AddLineItem" Type="button">Add</SfButton>
+                            <SfNumericTextBox TValue="decimal" @bind-Value="newItem.discount" Placeholder="Disc" FloatLabelType="FloatLabelType.Auto" Format="C2" CssClass="e-outline"></SfNumericTextBox>
+                        </div>
+                        <div class="col-md-1">
+                            <SfButton CssClass="@(newItem.LineItemID > 0 || !string.IsNullOrEmpty(newItem.item_name) && currentInvoiceItems.Any(i => i.item_name == newItem.item_name) ? "e-info w-100" : "e-primary w-100")" 
+                                      IconCss="@(newItem.LineItemID > 0 ? "bi bi-check-all" : "bi bi-plus")" 
+                                      OnClick="AddLineItem" 
+                                      Type="button">
+                                @(newItem.LineItemID > 0 ? "Update" : "Add")
+                            </SfButton>
                         </div>
                     </div>
                 </div>
@@ -119,10 +96,10 @@
                         <thead class="bg-light">
                             <tr>
                                 <th>Item</th>
-                                <th>Description</th>
-                                <th>Category</th>
+                                <th>Remarks</th>
                                 <th class="text-end">Qty</th>
-                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Rate</th>
+                                <th class="text-end">Discount</th>
                                 <th class="text-end">Amount</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -137,14 +114,22 @@
                             @foreach (var item in currentInvoiceItems)
                             {
                                 <tr>
-                                    <td>@item.ItemName</td>
-                                    <td>@item.Description</td>
-                                    <td>@item.Category</td>
-                                    <td class="text-end">@item.Quantity</td>
-                                    <td class="text-end">@item.UnitPrice.ToString("C2")</td>
-                                    <td class="text-end">@item.Amount.ToString("C2")</td>
+                                    <td>@item.item_name</td>
+                                    <td>@item.remarks</td>
+                                    <td class="text-end">@item.qty</td>
+                                    <td class="text-end">@item.rate.ToString("C2")</td>
+                                    <td class="text-end">@item.discount.ToString("C2")</td>
+                                    <td class="text-end">@item.amount.ToString("C2")</td>
                                     <td class="text-center">
+                                         <div class="d-flex justify-content-center gap-2">
+                                            <SfButton CssClass="e-info e-small e-outline"
+                                                      IconCss="bi bi-pencil"
+                                                      OnClick="@(() => EditLineItem(item))"
+                                                      Type="button"
+                                                      Title="Edit Item">
+                                            </SfButton>
                                         <SfButton CssClass="e-danger e-small e-outline" IconCss="bi bi-trash" OnClick="@(() => RemoveLineItem(item))" Type="button"></SfButton>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -156,18 +141,9 @@
                 <div class="row justify-content-end">
                     <div class="col-md-4">
                         <div class="totals-card p-3 border rounded">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal:</span>
-                                <span>@currentInvoice.SubTotal.ToString("C2")</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Tax (18%):</span>
-                                <span>@currentInvoice.TaxAmount.ToString("C2")</span>
-                            </div>
-                            <hr />
                             <div class="d-flex justify-content-between h5 mb-0">
                                 <strong>Total:</strong>
-                                <strong>@currentInvoice.TotalAmount.ToString("C2")</strong>
+                                <strong>@CalculateTotal().ToString("C2")</strong>
                             </div>
                         </div>
                     </div>
@@ -175,7 +151,7 @@
 
                 <div class="sticky-footer">
                     <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
-                        @(currentInvoice.Id == 0 ? "Save Invoice" : "Update Invoice")
+                        @(currentInvoice.InvoiceID == 0 ? "Save Invoice" : "Update Invoice")
                     </SfButton>
                     <SfButton CssClass="e-outline" OnClick="CloseForm" Type="button">
                         Cancel
@@ -200,10 +176,18 @@
                     OnEdit="OpenEditForm"
                     OnDelete="DeleteInvoice">
             <GridColumns>
-                <GridColumn Field="@nameof(Invoice.InvoiceNumber)" HeaderText="Invoice #" Width="150" IsPrimaryKey="true"></GridColumn>
-                <GridColumn Field="@nameof(Invoice.InvoiceDate)" HeaderText="Date" Width="120" Format="d"></GridColumn>
-                <GridColumn Field="@nameof(Invoice.CustomerName)" HeaderText="Customer" Width="200"></GridColumn>
-                <GridColumn Field="@nameof(Invoice.TotalAmount)" HeaderText="Total Amount" Width="150" Format="C2" TextAlign="TextAlign.Right"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.InvoiceID)" HeaderText="ID" Width="80" Visible="false" IsPrimaryKey="true"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.invoice_no)" HeaderText="Invoice" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.invoice_date)" HeaderText="Date" Width="120" Format="d"></GridColumn>
+                <GridColumn Field="@nameof(Invoice.CustomerID)" HeaderText="Customer ID" Width="120"></GridColumn>
+                <GridColumn HeaderText="Items" Width="100">
+                    <Template>
+                        @{
+                            var invoice = context as Invoice;
+                            <span class="badge bg-info">@(invoice?.Items?.Count ?? 0) items</span>
+                        }
+                    </Template>
+                </GridColumn>
             </GridColumns>
         </CommonGrid>
     }

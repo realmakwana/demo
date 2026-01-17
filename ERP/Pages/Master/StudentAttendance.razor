@@ -1,0 +1,224 @@
+@page "/StudentAttendance"
+@using StudentAttendanceEntity = ERP.Models.Entities.StudentAttendance
+@using ERP.Components.Shared.Grid
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Calendars
+
+<PageTitle>Student Attendance - Transport ERP</PageTitle>
+
+<div class="page-container">
+
+    <!-- Breadcrumb -->
+    <Breadcrumb Items="@breadcrumbItems" />
+
+    <!-- ================= FORM SECTION ================= -->
+    @if (showForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>@(currentAttendance?.AttendanceID == 0 ? "Add Student Attendance" : "Edit Student Attendance")</h3>
+            </div>
+
+            <EditForm Model="@currentAttendance" OnValidSubmit="SaveAttendance">
+                <DataAnnotationsValidator />
+
+                <div class="row g-4">
+
+                    <!-- Student Search -->
+                    <div class="col-md-6">
+                        <div class="uniform-input">
+                            <AutoSuggestBox @bind-Value="currentAttendance.StudentName"
+                                            Placeholder="Student Name *"
+                                            SearchFunction="SearchStudents"
+                                            FloatLabelType="FloatLabelType.Auto"
+                                            CssClass="e-outline">
+                            </AutoSuggestBox>
+                        </div>
+                        <ValidationMessage For="@(() => currentAttendance.StudentID)" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="uniform-input">
+                            <SfDatePicker @bind-Value="currentAttendance.AttendanceDate"
+                                          Placeholder="Attendance Date *"
+                                          FloatLabelType="FloatLabelType.Auto"
+                                          CssClass="e-outline">
+                            </SfDatePicker>
+                        </div>
+                        <ValidationMessage For="@(() => currentAttendance.AttendanceDate)" />
+                    </div>
+
+
+                    <!-- Status -->
+                    <div class="col-md-12">
+                        <label class="form-label">Status *</label><br />
+
+                        <SfRadioButton TValue="bool"
+                                       Label="Present"
+                                       Name="status"
+                                       Value="true"
+                                       @bind-Checked="currentAttendance.IsPresent" />
+
+                        <SfRadioButton TValue="bool"
+                                       Label="Absent"
+                                       Name="status"
+                                       Value="false"
+                                       @bind-Checked="currentAttendance.IsPresent" />
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="sticky-footer">
+                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                        @(currentAttendance.AttendanceID == 0 ? "Save Attendance" : "Update Attendance")
+                    </SfButton>
+
+                    <SfButton CssClass="e-outline" OnClick="CloseForm">
+                        Cancel
+                    </SfButton>
+                </div>
+
+            </EditForm>
+        </div>
+    }
+
+    <!-- ================= MULTIPLE ATTENDANCE FORM ================= -->
+    @if (showMultipleAttendanceForm)
+    {
+        <div class="form-container fade-in">
+            <div class="form-header">
+                <h3>Add Multiple Attendance</h3>
+            </div>
+
+            <div class="row g-4">
+                <!-- Date Selection -->
+                <div class="col-md-4">
+                    <div class="uniform-input">
+                        <SfDatePicker @bind-Value="selectedDate"
+                                      @bind-Value:after="OnDateChangedAsync"
+                                      Placeholder="Select Attendance Date *"
+                                      FloatLabelType="FloatLabelType.Auto"
+                                      CssClass="e-outline">
+                        </SfDatePicker>
+                    </div>
+                </div>
+            </div>
+
+            @if (selectedDate != null && multipleAttendanceList.Count > 0)
+            {
+                <div class="mt-4">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 60px;">#</th>
+                                    <th>Student Name</th>
+                                    <th style="width: 120px; text-align: center;">Present</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < multipleAttendanceList.Count; i++)
+                                {
+                                    var index = i;
+                                    var item = multipleAttendanceList[index];
+                                    <tr>
+                                        <td>@(index + 1)</td>
+                                        <td>@item.StudentName</td>
+                                        <td style="text-align: center;">
+                                            <SfCheckBox @bind-Checked="item.IsPresent" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <!-- Footer -->
+            <div class="sticky-footer">
+                <SfButton CssClass="e-primary" IconCss="bi bi-save" OnClick="SaveMultipleAttendance">
+                    Save Attendance
+                </SfButton>
+
+                <SfButton CssClass="e-outline" OnClick="CloseMultipleAttendanceForm">
+                    Cancel
+                </SfButton>
+            </div>
+        </div>
+    }
+
+    <!-- ================= GRID SECTION ================= -->
+    @if (!showForm && !showMultipleAttendanceForm)
+    {
+        <div class="grid-container fade-in">
+            <div class="grid-header">
+                <div class="grid-title-container">
+                    <h3 class="grid-title">Student Attendance</h3>
+                </div>
+                <div class="grid-actions">
+                    @if (currentRights?.IsAdd ?? true)
+                    {
+                        <SfButton CssClass="e-success" IconCss="bi bi-plus-circle" OnClick="OpenAddForm">
+                            Add Attendance
+                        </SfButton>
+                        <SfButton CssClass="e-info" IconCss="bi bi-calendar-check" OnClick="OpenMultipleAttendanceForm">
+                            Add Multiple Attendance
+                        </SfButton>
+                    }
+                </div>
+            </div>
+
+            <CommonGrid TEntity="StudentAttendanceEntity"
+                        GridTitle=""
+                        EntityName="Attendance"
+                        HelpText="Manage daily student attendance."
+                        DataSource="@attendanceList"
+                        ShowAddButton="false"
+                        CanAdd="@(currentRights?.IsAdd ?? true)"
+                        CanEdit="@(currentRights?.IsEdit ?? true)"
+                        CanDelete="@(currentRights?.IsDelete ?? true)"
+                        OnEdit="OpenEditForm"
+                        OnDelete="DeleteAttendance">
+
+                <GridColumns>
+                    <GridColumn Field="@nameof(StudentAttendanceEntity.AttendanceID)"
+                                HeaderText="ID"
+                                Visible="false"
+                                IsPrimaryKey="true" />
+
+                    <GridColumn HeaderText="Student Name" Width="200">
+                        <Template>
+                            @{
+                                var item = context as StudentAttendanceEntity;
+                                @item?.Student?.StudentName
+                            }
+                        </Template>
+                    </GridColumn>
+
+                    <GridColumn Field="@nameof(StudentAttendanceEntity.AttendanceDate)"
+                                HeaderText="Date"
+                                Format="d"
+                                Width="120" />
+
+                    <GridColumn HeaderText="Status" Width="120">
+                        <Template>
+                            @{
+                                var item = context as StudentAttendanceEntity;
+                            }
+                            <span class="status-badge @(item?.IsPresent == true ? "status-active" : "status-inactive")">
+                                @(item?.IsPresent == true ? "Present" : "Absent")
+                            </span>
+
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </CommonGrid>
+        </div>
+  }
+
+</div>

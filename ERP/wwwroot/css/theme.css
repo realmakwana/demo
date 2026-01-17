@@ -520,3 +520,193 @@ button {
 [data-theme="dark"] .e-input-group:not(.e-float-icon-left) .e-float-text.e-label-bottom {
     background-color: var(--bg-tertiary) !important;
 }
+
+/* ========================================================================= */
+/* COMPREHENSIVE DARK MODE FIX FOR SYNCFUSION INPUTS                        */
+/* ========================================================================= */
+
+/* Fix for e-outline inputs - ensures consistent background and border */
+[data-theme="dark"] .e-input-group.e-outline,
+[data-theme="dark"] .e-float-input.e-outline {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--input-border) !important;
+}
+
+/* Fix floating label background to match input background */
+[data-theme="dark"] .e-float-input.e-outline .e-float-line::before,
+[data-theme="dark"] .e-float-input.e-outline .e-float-line::after {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Ensure the label has proper background when floating */
+[data-theme="dark"] .e-float-input.e-outline .e-float-text {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Fix the notch/gap background for floating labels */
+[data-theme="dark"] .e-float-input.e-outline.e-input-focus .e-float-text,
+[data-theme="dark"] .e-float-input.e-outline.e-valid-input .e-float-text {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Ensure consistent border color on focus */
+[data-theme="dark"] .e-input-group.e-outline.e-input-focus,
+[data-theme="dark"] .e-float-input.e-outline.e-input-focus {
+    border-color: var(--primary-color) !important;
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Fix for the outline border itself */
+[data-theme="dark"] .e-float-input.e-outline .e-float-line {
+    background-color: transparent !important;
+}
+
+/* Ensure input text color is correct */
+[data-theme="dark"] .e-input-group.e-outline input.e-input,
+[data-theme="dark"] .e-float-input.e-outline input.e-input,
+[data-theme="dark"] .e-input-group.e-outline textarea.e-input,
+[data-theme="dark"] .e-float-input.e-outline textarea.e-input {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix DatePicker specific styling */
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-date-wrapper.e-outline,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-date-wrapper.e-outline {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--input-border) !important;
+}
+
+/* Fix DropDownList specific styling */
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-ddl.e-outline,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-ddl.e-outline {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--input-border) !important;
+}
+
+/* Fix AutoComplete specific styling */
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-autocomplete.e-outline,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-autocomplete.e-outline {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--input-border) !important;
+}
+
+/* Fix the notch background color to prevent color mismatch */
+[data-theme="dark"] .e-float-input.e-outline .e-float-text::before,
+[data-theme="dark"] .e-float-input.e-outline .e-float-text::after {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Ensure dropdown icons are visible */
+[data-theme="dark"] .e-input-group-icon,
+[data-theme="dark"] .e-ddl-icon {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix hover state */
+[data-theme="dark"] .e-input-group.e-outline:hover,
+[data-theme="dark"] .e-float-input.e-outline:hover {
+    border-color: var(--border-hover) !important;
+}
+
+/* Ensure disabled state is visible */
+[data-theme="dark"] .e-input-group.e-outline.e-disabled,
+[data-theme="dark"] .e-float-input.e-outline.e-disabled {
+    background-color: var(--bg-secondary) !important;
+    opacity: 0.6;
+}
+
+/* ========================================================================= */
+/* ULTRA-SPECIFIC DARK MODE FIXES - MAXIMUM PRIORITY                        */
+/* ========================================================================= */
+
+/* Force background color for ALL outline inputs in dark mode */
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline,
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-outline,
+[data-theme="dark"] .e-float-input.e-outline.e-control-wrapper,
+[data-theme="dark"] .e-input-group.e-outline.e-control-wrapper {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* Force input element background */
+[data-theme="dark"] .e-float-input.e-outline input,
+[data-theme="dark"] .e-input-group.e-outline input,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline input,
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-outline input {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+}
+
+/* Force floating label background - THIS IS KEY */
+[data-theme="dark"] .e-float-input.e-outline .e-float-text,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline .e-float-text,
+[data-theme="dark"] .e-input-group.e-outline .e-float-text,
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-outline .e-float-text {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+}
+
+/* Force the notch/gap area background */
+[data-theme="dark"] .e-float-input.e-outline .e-float-text::before,
+[data-theme="dark"] .e-float-input.e-outline .e-float-text::after,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline .e-float-text::before,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline .e-float-text::after {
+    background-color: #1e293b !important;
+}
+
+/* Force border line background */
+[data-theme="dark"] .e-float-input.e-outline .e-float-line::before,
+[data-theme="dark"] .e-float-input.e-outline .e-float-line::after,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline .e-float-line::before,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline .e-float-line::after {
+    background-color: #1e293b !important;
+}
+
+/* Force focus state colors */
+[data-theme="dark"] .e-float-input.e-outline.e-input-focus,
+[data-theme="dark"] .e-input-group.e-outline.e-input-focus,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline.e-input-focus,
+[data-theme="dark"] .e-input-group.e-control-wrapper.e-outline.e-input-focus {
+    background-color: #1e293b !important;
+    border-color: #2563eb !important;
+}
+
+/* Force focus state label color */
+[data-theme="dark"] .e-float-input.e-outline.e-input-focus .e-float-text,
+[data-theme="dark"] .e-float-input.e-control-wrapper.e-outline.e-input-focus .e-float-text {
+    background-color: #1e293b !important;
+    color: #2563eb !important;
+}
+
+/* Fix for specific Syncfusion components */
+[data-theme="dark"] .e-control-wrapper.e-outline.e-date-wrapper,
+[data-theme="dark"] .e-control-wrapper.e-outline.e-ddl,
+[data-theme="dark"] .e-control-wrapper.e-outline.e-autocomplete,
+[data-theme="dark"] .e-control-wrapper.e-outline.e-numeric {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* Ensure the wrapper div also has correct background */
+[data-theme="dark"] .uniform-input .e-float-input.e-outline,
+[data-theme="dark"] .uniform-input .e-input-group.e-outline,
+[data-theme="dark"] .uniform-input .e-control-wrapper.e-outline {
+    background-color: #1e293b !important;
+}
+
+/* Fix for any nested elements */
+[data-theme="dark"] .e-outline .e-input-in-wrap,
+[data-theme="dark"] .e-outline .e-input-group-icon {
+    background-color: #1e293b !important;
+}
+
+/* Ensure icons are visible */
+[data-theme="dark"] .e-outline .e-input-group-icon,
+[data-theme="dark"] .e-outline .e-ddl-icon,
+[data-theme="dark"] .e-outline .e-date-icon {
+    color: #cbd5e1 !important;
+    background-color: transparent !important;
+}

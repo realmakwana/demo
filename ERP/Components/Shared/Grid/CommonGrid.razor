@@ -16,7 +16,9 @@
         <div class="grid-actions">
             @if (ShowAddButton && CanAdd && OnAdd.HasDelegate)
             {
-                <SfButton CssClass="e-success" IconCss="bi bi-plus-circle" OnClick="HandleAdd">
+                <SfButton CssClass="e-success add-new-btn"
+                          IconCss="bi bi-plus-circle"
+                          OnClick="HandleAdd">
                     Add @EntityName
                 </SfButton>
             }
