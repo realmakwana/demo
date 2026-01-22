@@ -24,6 +24,7 @@ public class ERPDbContext : Microsoft.EntityFrameworkCore.DbContext
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Category> Category { get; set; }
+    public DbSet<CatType> tblCatType { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

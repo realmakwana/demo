@@ -1,6 +1,9 @@
 @page "/Category"
+@inject ERPDbContext Db
+@using Microsoft.EntityFrameworkCore
 @using CategoryEntity = ERP.Models.Entities.Category
 @using ERP.Components.Shared.Grid
+@using ERP.Models.DbContext
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Buttons
 @inherits ERP.Components.Base.CrudComponentBase
@@ -21,33 +24,59 @@
             <EditForm Model="@currentCategory" OnValidSubmit="SaveCategory">
                 <DataAnnotationsValidator />
                 <div class="col-md-4">
-                    <!-- Category Name -->
                     <div class="col-md-6">
-                        <SfTextBox @bind-Value="currentCategory.CatName"
-                                   Placeholder="Category Name *"
-                                   FloatLabelType="FloatLabelType.Auto"
-                                   CssClass="e-outline">
-                        </SfTextBox>
-                        <ValidationMessage For="@(() => currentCategory.CatName)" />
-                    </div>
+                        <InputSelect class="form-select" @bind-Value="SelectedCatTypeID">
+                            <option value="">-- Select Category Type --</option>
+                            @foreach (var item in CatTypeList)
+                            {
+                                <option value="@item.CatTypeID">@item.CatTypeName</option>
+                            }
+                    </InputSelect>
+                    <p class="mt-2">
+                        Selected ID: @SelectedCatTypeID
+                    </p>
 
-                    <!-- Is Active -->
-                    <div class="col-md-12">
-                        <SfCheckBox @bind-Checked="currentCategory.IsActive" Label="Active" TChecked="bool"></SfCheckBox>
-                    </div>
+                    @code {
+                        private List<CatType> CatTypeList = new();
+                        private int? SelectedCatTypeID;
+
+                        protected override async Task OnInitializedAsync()
+                        {
+                            CatTypeList = await Db.tblCatType
+                            .AsNoTracking()
+                            .OrderBy(x => x.CatTypeName)
+                            .ToListAsync();
+                        }
+                    }
                 </div>
 
-                <div class="sticky-footer">
-                    <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
-                        @(currentCategory?.CatID == 0 ? "Save Category" : "Update Category")
-                    </SfButton>
-                    <SfButton CssClass="e-outline" OnClick="CloseForm">
-                        Cancel
-                    </SfButton>
+                <!-- Category Name -->
+                <div class="col-md-6">
+                    <SfTextBox @bind-Value="currentCategory.CatName"
+                               Placeholder="Category Name *"
+                               FloatLabelType="FloatLabelType.Auto"
+                               CssClass="e-outline">
+                    </SfTextBox>
+                    <ValidationMessage For="@(() => currentCategory.CatName)" />
                 </div>
-            </EditForm>
-        </div>
-    }
+
+                <!-- Is Active -->
+                <div class="col-md-12">
+                    <SfCheckBox @bind-Checked="currentCategory.IsActive" Label="Active" TChecked="bool"></SfCheckBox>
+                </div>
+            </div>
+
+            <div class="sticky-footer">
+                <SfButton CssClass="e-primary" IconCss="bi bi-save" Type="Submit">
+                    @(currentCategory?.CatID == 0 ? "Save Category" : "Update Category")
+                </SfButton>
+                <SfButton CssClass="e-outline" OnClick="CloseForm">
+                    Cancel
+                </SfButton>
+            </div>
+        </EditForm>
+    </div>
+        }
 
     <!-- Common Grid -->
     @if (!showForm)
