@@ -4,6 +4,7 @@ using ERP.Components.Shared.UI;
 using ERP.Components.Base;
 using CategoryEntity = ERP.Models.Entities.Category;
 using ERP.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Pages.Master
 {
@@ -18,7 +19,6 @@ namespace ERP.Pages.Master
         [Inject] private AuthService AuthService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
-        private string selectedCatType = "";
 
         /// <summary>
         /// Breadcrumb navigation items
@@ -32,6 +32,8 @@ namespace ERP.Pages.Master
 
         private List<CategoryEntity> Categories = new();
         private CategoryEntity? currentCategory;
+        private List<CatType> CatTypeList = new();
+        private int? SelectedCatTypeID;
         private bool showForm = false;
         private UserWiseMenu? currentRights;
 
@@ -50,6 +52,13 @@ namespace ERP.Pages.Master
                 currentRights = await MenuService.GetUserMenuRightsAsync(AuthService.UserId, path);
             }
         }
+        protected override async Task OnInitializedAsync()
+        {
+            CatTypeList = await Db.tblCatType.AsNoTracking().OrderBy(x => x.CatTypeName).ToListAsync();
+            await LoadCategorys();
+            await LoadRights();
+            
+        }
 
         /// <summary>
         /// Loads all Categorys from the database
@@ -59,6 +68,7 @@ namespace ERP.Pages.Master
             try
             {
                 Categories = await CategoryService.GetAllCategorysAsync();
+
             }
             catch (Exception ex)
             {
@@ -76,6 +86,7 @@ namespace ERP.Pages.Master
             {
                 IsActive = true
             };
+
             showForm = true;
         }
 
@@ -254,13 +265,6 @@ namespace ERP.Pages.Master
             return Task.CompletedTask;
 
         }
-        private List<string> CategoryTypeList = new List<string>
-        {
-            "Cate 1", "Cate 2", "Cate 3", "Cate 4", "Cate 5"
-        };
-
-
-
     }
 }
 

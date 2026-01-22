@@ -32,19 +32,6 @@
                                     AllowFiltering="true">
                             <ComboBoxFieldSettings Value="CatTypeID" Text="CatTypeName" />
                         </SfComboBox>
-
-                    @code {
-                        private List<CatType> CatTypeList = new();
-                        private int? SelectedCatTypeID;
-
-                        protected override async Task OnInitializedAsync()
-                        {
-                            CatTypeList = await Db.tblCatType
-                            .AsNoTracking()
-                            .OrderBy(x => x.CatTypeName)
-                            .ToListAsync();
-                        }
-                    }
                 </div>
 
                 <!-- Category Name -->
@@ -92,17 +79,16 @@
             <GridColumns>
                 <GridColumn Field="@nameof(CategoryEntity.CatID)" HeaderText="ID" Width="80" Visible="false" IsPrimaryKey="true"></GridColumn>
                 <GridColumn Field="@nameof(CategoryEntity.CatName)" HeaderText="Category Name" Width="200"></GridColumn>
-                <GridColumn Field="@nameof(CategoryEntity.CatTypeID)"
-                    HeaderText="Category Type"
-                    Width="150"
-                    EditType="EditType.DropDownEdit">
-            <GridColumnEditParams>
-                <DropDownEditParams TValue="int"
-                                    DataSource="@CatTypeList"
-                                    Fields="@(new DropDownListFieldSettings { Value = "CatTypeID", Text = "CatTypeName" })"
-                                    Placeholder="Select Category Type" />
-            </GridColumnEditParams>
-        </GridColumn>
+                <GridColumn Field="@nameof(CategoryEntity.CatTypeID)" HeaderText="CatTypeID" Width="80" Visible="false"></GridColumn>
+                <GridColumn Field="CatTypeName" HeaderText="Category Type" Width="200">
+                    <Template>
+                        @{
+                            var Category = context as CategoryEntity;
+                            var catTypeName = CatTypeList.FirstOrDefault(x => x.CatTypeID == Category?.CatTypeID)?.CatTypeName;
+                            <span>@catTypeName</span>
+                        }
+                    </Template>
+                </GridColumn>
                 <GridColumn Field="@nameof(CategoryEntity.IsActive)" HeaderText="Status" Width="100">
                     <Template>
                         @{
