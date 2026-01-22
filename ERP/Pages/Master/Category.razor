@@ -25,16 +25,13 @@
                 <DataAnnotationsValidator />
                 <div class="col-md-4">
                     <div class="col-md-6">
-                        <InputSelect class="form-select" @bind-Value="SelectedCatTypeID">
-                            <option value="">-- Select Category Type --</option>
-                            @foreach (var item in CatTypeList)
-                            {
-                                <option value="@item.CatTypeID">@item.CatTypeName</option>
-                            }
-                    </InputSelect>
-                    <p class="mt-2">
-                        Selected ID: @SelectedCatTypeID
-                    </p>
+                        <SfComboBox TValue="int" TItem="CatType"
+                                    DataSource="@CatTypeList"
+                                    @bind-Value="currentCategory.CatTypeID"
+                                    Placeholder="Select Category Type"
+                                    AllowFiltering="true">
+                            <ComboBoxFieldSettings Value="CatTypeID" Text="CatTypeName" />
+                        </SfComboBox>
 
                     @code {
                         private List<CatType> CatTypeList = new();
@@ -95,7 +92,17 @@
             <GridColumns>
                 <GridColumn Field="@nameof(CategoryEntity.CatID)" HeaderText="ID" Width="80" Visible="false" IsPrimaryKey="true"></GridColumn>
                 <GridColumn Field="@nameof(CategoryEntity.CatName)" HeaderText="Category Name" Width="200"></GridColumn>
-                <GridColumn Field=@nameof(CategoryEntity.CatTypeID) HeaderText="Category Type" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(CategoryEntity.CatTypeID)"
+                    HeaderText="Category Type"
+                    Width="150"
+                    EditType="EditType.DropDownEdit">
+            <GridColumnEditParams>
+                <DropDownEditParams TValue="int"
+                                    DataSource="@CatTypeList"
+                                    Fields="@(new DropDownListFieldSettings { Value = "CatTypeID", Text = "CatTypeName" })"
+                                    Placeholder="Select Category Type" />
+            </GridColumnEditParams>
+        </GridColumn>
                 <GridColumn Field="@nameof(CategoryEntity.IsActive)" HeaderText="Status" Width="100">
                     <Template>
                         @{

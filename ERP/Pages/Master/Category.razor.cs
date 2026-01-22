@@ -38,12 +38,6 @@ namespace ERP.Pages.Master
         /// <summary>
         /// Initializes the component and loads data
         /// </summary>
-        protected override async Task OnInitializedAsync()
-        {
-            await LoadCategorys();
-            await LoadRights();
-        }
-
         /// <summary>
         /// Loads user rights for the current page
         /// </summary>
