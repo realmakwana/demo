@@ -26,16 +26,14 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label>Category Type</label>
-                        <SfAutoComplete TValue="int" TItem="CatType"
-                                        DataSource="@CatTypeList"
-                                        @bind-Value="currentCategory.CatTypeID"
-                                        Placeholder="Select Category Type"
-                                        AllowFiltering="true">
-                            <AutoCompleteFieldSettings Text="CatTypeName"
-                                                       Value="CatTypeID">
-                            </AutoCompleteFieldSettings>
+                        <SfAutoComplete TValue="int" TItem="CatType" 
+                            DataSource="@CatTypeList" 
+                            @bind-Value="currentCategory.CatTypeID" 
+                            Placeholder="Select Category Type" 
+                            AllowFiltering="true">
+                            <AutoCompleteFieldSettings Text="CatTypeName" Value="CatTypeID"> 
+                            </AutoCompleteFieldSettings> </SfAutoComplete>
 
-                        </SfAutoComplete>
                     </div>
 
                     <!-- Category Name -->
