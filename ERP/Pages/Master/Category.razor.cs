@@ -33,7 +33,6 @@ namespace ERP.Pages.Master
         private List<CategoryEntity> Categories = new();
         private CategoryEntity? currentCategory;
         private List<CatType> CatTypeList = new();
-        private int? SelectedCatTypeID;
         private bool showForm = false;
         private UserWiseMenu? currentRights;
 
@@ -52,12 +51,42 @@ namespace ERP.Pages.Master
                 currentRights = await MenuService.GetUserMenuRightsAsync(AuthService.UserId, path);
             }
         }
+        private async Task<IEnumerable<string>> SearchCatType(string searchText)
+        {
+            await Task.Delay(100);
+
+            if (string.IsNullOrWhiteSpace(searchText))
+                return Enumerable.Empty<string>();
+
+            return CatTypeList
+                .Where(s => !string.IsNullOrEmpty(s.CatTypeName) &&
+                            s.CatTypeName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.CatTypeName!)
+                .Distinct()
+                .Take(50);
+        }
+        private string SearchCurantCatTypeNameByID
+        {
+            get
+            {
+                return CatTypeList
+                    .FirstOrDefault(x => x.CatTypeID == currentCategory.CatTypeID)
+                    ?.CatTypeName;
+            }
+            set
+            {
+                var selected = CatTypeList
+                    .FirstOrDefault(x => x.CatTypeName == value);
+
+                currentCategory.CatTypeID = selected?.CatTypeID ?? 0;
+            }
+        }
         protected override async Task OnInitializedAsync()
         {
             CatTypeList = await Db.tblCatType.AsNoTracking().OrderBy(x => x.CatTypeName).ToListAsync();
             await LoadCategorys();
             await LoadRights();
-            
+
         }
 
         /// <summary>
