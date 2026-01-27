@@ -29,7 +29,7 @@ namespace ERP.Components.Layout
         }
 
         private void HandleGlobalKeyDown(KeyboardEventArgs e)
-        {
+       {
             // Check if / key is pressed and not in an input field
             if (e.Key == "/" && topBarRef != null)
             {
