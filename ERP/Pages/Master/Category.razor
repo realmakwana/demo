@@ -27,13 +27,12 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <div class="uniform-input">
-                            <label>Category Type</label>
                             <AutoSuggestBox @bind-Value="SearchCurantCatTypeNameByID"
                                             Placeholder="Category Type *"
                                             SearchFunction="SearchCatType"
+                                            MinLength="1"
                                             FloatLabelType="FloatLabelType.Auto"
-                                            CssClass="e-outline">
-                            </AutoSuggestBox>
+                                            CssClass="e-outline" />
                         </div>
                     </div>
 
