@@ -2,10 +2,22 @@ using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
 using ERP.Models.DbContext;
 using ERP.Models.Extensions;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services
+    .AddBlazorise(options =>
+    {
+        options.Immediate = true;
+    })
+    .AddBootstrapProviders()
+    .AddFontAwesomeIcons();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

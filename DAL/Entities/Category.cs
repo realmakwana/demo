@@ -10,5 +10,6 @@ public class Category
     public Int32 CatID { get; set; }
     public String CatName { get; set; }
     public Int32 CatTypeID { get; set; }
+    public String CatTypeName { get; set; }
     public bool IsActive { get; set; }
 }

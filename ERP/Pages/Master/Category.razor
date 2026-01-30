@@ -26,14 +26,16 @@
                 <DataAnnotationsValidator />
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <div class="uniform-input">
-                            <AutoSuggestBox @bind-Value="SearchCurantCatTypeNameByID"
-                                            Placeholder="Category Type *"
-                                            SearchFunction="SearchCatType"
-                                            MinLength="1"
-                                            FloatLabelType="FloatLabelType.Auto"
-                                            CssClass="e-outline" />
-                        </div>
+                        <AutoSuggestBox TValue="int"
+                                        Placeholder="Search CateType..."
+                                        Value="@currentCategory.CatTypeName"
+                                        ValueChanged="@(v => @currentCategory.CatTypeName = v)"
+                                        SelectedId="@currentCategory.CatTypeID"
+                                        SelectedIdChanged="@(v => OnCateTypeChanged(v))"
+                                        SearchFunction="SearchCatType"
+                                        FloatLabelType="FloatLabelType.Auto"
+                                        CssClass="">
+                        </AutoSuggestBox>
                     </div>
 
                     <!-- Category Name -->
