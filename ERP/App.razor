@@ -2,18 +2,23 @@
 @inject NavigationManager Navigation
 @implements IDisposable
 
+
+
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         @if (isCheckingAuth)
         {
             <div class="initial-loading">
                 <LoadingSpinner IsLoading="true" LoadingText="Verifying session..." />
+
             </div>
         }
         else if (IsAuthenticatedOrLoginPage(routeData))
         {
             <RouteView RouteData="@routeData" DefaultLayout="@typeof(Components.Layout.MainLayout)" />
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            <Blazorise.Bootstrap5.Bootstrap5Provider />
+            <Blazorise.Icons.FontAwesome.FontAwesomeIcons />
         }
     </Found>
     <NotFound>

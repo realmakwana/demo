@@ -1,12 +1,10 @@
-using ERP.Components.Base;
+﻿using ERP.Components.Base;
 using ERP.Components.Shared.UI;
 using ERP.Models.Entities;
 using ERP.Models.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using CategoryEntity = ERP.Models.Entities.Category;
-using Blazorise;
-using Blazorise.Components;
 namespace ERP.Pages.Master
 {
     /// <summary>
@@ -54,52 +52,24 @@ namespace ERP.Pages.Master
         }
         private async Task<IEnumerable<string>> SearchCatType(string searchText)
         {
-            try
-            {
-                var filteredAccounts = CatTypeList
-                    .Where(a => string.IsNullOrWhiteSpace(searchText) ||
-                               a.CatTypeName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                    .Select(a => new AutoSuggestItem<int>
-                    {
-                        Id = a.CatTypeID,
-                        Text = a.CatTypeName
-                    })
-                    .ToList();
+            await Task.Delay(100);
 
-                return await Task.FromResult(filteredAccounts);
-            }
-            catch (Exception ex)
-            {
-                ToastService.ShowToast($"Error searching CateType: {ex.Message}", ToastLevel.Error);
-                return new List<AutoSuggestItem<int>>();
-            }
+            return CatTypeList
+                .Where(x => string.IsNullOrWhiteSpace(searchText)
+                         || x.CatTypeName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.CatTypeName);
         }
-        private void OnCateTypeChanged(int? CatTypeID)
+        private void OnCatTypeSelected(string selectedText)
         {
-            if (currentCategory != null)
-            {
-                currentCategory.CatTypeID = CatTypeID.GetValueOrDefault();
+            var selected = CatTypeList
+                .FirstOrDefault(x => x.CatTypeName == selectedText);
 
-                if (currentCategory.CatTypeID > 0 && string.IsNullOrEmpty(currentCategory.CatTypeName))
-                {
-                    currentCategory.CatName = GetCatTypeName(currentCategory.CatTypeID);
-                }
+            if (selected != null)
+            {
+                currentCategory.CatTypeID = selected.CatTypeID;
             }
         }
-        private string GetCatTypeName(int CatTypeID)
-        {
-            try
-            {
-                if (CatTypeID <= 0) return "";
-
-                var CateType = CatTypeList.FirstOrDefault(a => a.CatTypeID == CatTypeID);
-                return CateType?.CatTypeName ?? $"CateType {CatTypeID}";
-            }
-            catch
-            {
-                return $"CateType {CatTypeID}";
-            }
-        }
+       
         protected override async Task OnInitializedAsync()
         {
             CatTypeList = await Db.tblCatType.AsNoTracking().OrderBy(x => x.CatTypeName).ToListAsync();

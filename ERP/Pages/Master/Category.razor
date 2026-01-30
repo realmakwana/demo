@@ -7,6 +7,7 @@
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.DropDowns
+@using Blazorise.Components
 @inherits ERP.Components.Base.CrudComponentBase
 <PageTitle>Category - Transport ERP</PageTitle>
 
@@ -26,18 +27,13 @@
                 <DataAnnotationsValidator />
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <AutoSuggestBox TValue="int"
-                                        Placeholder="Search CateType..."
-                                        Value="@currentCategory.CatTypeName"
-                                        ValueChanged="@(v => @currentCategory.CatTypeName = v)"
-                                        SelectedId="@currentCategory.CatTypeID"
-                                        SelectedIdChanged="@(v => OnCateTypeChanged(v))"
+                        <AutoSuggestBox TValue="string"
+                                        Placeholder="Category Type"
                                         SearchFunction="SearchCatType"
-                                        FloatLabelType="FloatLabelType.Auto"
-                                        CssClass="">
-                        </AutoSuggestBox>
-                    </div>
+                                        ValueChanged="OnCatTypeSelected" 
+                                        CssClass="e-outline"/>
 
+                    </div>
                     <!-- Category Name -->
                     <div class="col-md-6">
                         <SfTextBox @bind-Value="currentCategory.CatName"
