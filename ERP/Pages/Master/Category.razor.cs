@@ -35,6 +35,8 @@ namespace ERP.Pages.Master
         private bool showForm = false;
         private UserWiseMenu? currentRights;
 
+        private string categoryTypeSearchText = string.Empty;
+
         /// <summary>
         /// Initializes the component and loads data
         /// </summary>
@@ -61,6 +63,7 @@ namespace ERP.Pages.Master
         }
         private void OnCatTypeSelected(string selectedText)
         {
+            categoryTypeSearchText = selectedText;
             var selected = CatTypeList
                 .FirstOrDefault(x => x.CatTypeName == selectedText);
 
@@ -104,6 +107,7 @@ namespace ERP.Pages.Master
             {
                 IsActive = true
             };
+            categoryTypeSearchText = string.Empty;
 
             showForm = true;
         }
@@ -121,6 +125,10 @@ namespace ERP.Pages.Master
                 CatName = Category.CatName,
                 IsActive = Category.IsActive
             };
+            
+            var catType = CatTypeList.FirstOrDefault(x => x.CatTypeID == Category.CatTypeID);
+            categoryTypeSearchText = catType?.CatTypeName ?? string.Empty;
+            
             showForm = true;
         }
 
@@ -131,6 +139,7 @@ namespace ERP.Pages.Master
         {
             showForm = false;
             currentCategory = null;
+            categoryTypeSearchText = string.Empty;
         }
 
         /// <summary>
