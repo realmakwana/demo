@@ -67,11 +67,15 @@ namespace ERP.Pages.Master
         {
             categoryTypeSearchText = selectedText;
             var selected = CatTypeList
-                .FirstOrDefault(x => x.CatTypeName == selectedText);
+                .FirstOrDefault(x => string.Equals(x.CatTypeName, selectedText, StringComparison.OrdinalIgnoreCase));
 
             if (selected != null)
             {
                 currentCategory.CatTypeID = selected.CatTypeID;
+            }
+            else
+            {
+                currentCategory.CatTypeID = 0;
             }
         }
        
@@ -181,6 +185,19 @@ namespace ERP.Pages.Master
         private async Task SaveCategory()
         {
             if (currentCategory == null) return;
+
+            // Validate for blank or null values
+            if (string.IsNullOrWhiteSpace(currentCategory.CatName))
+            {
+                ToastService.ShowToast("Category Name is required", ToastLevel.Warning);
+                return;
+            }
+
+            if (currentCategory.CatTypeID <= 0)
+            {
+                ToastService.ShowToast("Please select a Category Type", ToastLevel.Warning);
+                return;
+            }
 
             try
             {
