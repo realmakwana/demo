@@ -176,5 +176,95 @@ window.keyboardShortcuts = {
 
         this.dotNetHelper = null;
         this.isSaving = false; // Reset saving flag
+    },
+
+    // Setup form navigation with Enter key
+    setupFormNavigation: function (formElement) {
+        if (!formElement) {
+            console.warn('Form element not provided for navigation setup');
+            return;
+        }
+
+        console.log('Setting up form navigation for:', formElement);
+
+        // Handle Enter key on form inputs
+        formElement.addEventListener('keydown', (e) => {
+            // Only handle Enter key
+            if (e.key !== 'Enter') return;
+
+            const activeElement = document.activeElement;
+
+            // Don't navigate if focus is on a button or submit element
+            if (activeElement.tagName === 'BUTTON' ||
+                activeElement.type === 'submit' ||
+                activeElement.classList.contains('e-btn')) {
+                console.log('Enter pressed on button, allowing default behavior');
+                return;
+            }
+
+            // Prevent form submission
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Find all focusable elements in the form
+            const focusableElements = formElement.querySelectorAll(
+                'input:not([type="hidden"]):not([disabled]), ' +
+                'textarea:not([disabled]), ' +
+                'select:not([disabled]), ' +
+                '[tabindex]:not([tabindex="-1"]):not([disabled]), ' +
+                '.e-input:not([disabled]), ' +
+                '.e-checkbox:not([disabled])'
+            );
+
+            const focusableArray = Array.from(focusableElements).filter(el => {
+                // Filter out elements that are not visible
+                return el.offsetParent !== null;
+            });
+
+            const currentIndex = focusableArray.indexOf(activeElement);
+
+            if (currentIndex > -1 && currentIndex < focusableArray.length - 1) {
+                const nextElement = focusableArray[currentIndex + 1];
+                console.log('Moving focus from', activeElement, 'to', nextElement);
+
+                // Focus the next element
+                nextElement.focus();
+
+                // If it's a text input, select the content
+                if (nextElement.tagName === 'INPUT' && nextElement.type === 'text') {
+                    nextElement.select();
+                }
+            } else {
+                console.log('Already at last focusable element or not found in list');
+            }
+        });
+
+        console.log('Form navigation setup complete');
+    },
+
+    // Focus a specific element (helper for auto-focus)
+    focusFirstFormElement: function (formElement) {
+        if (!formElement) return false;
+
+        // Find the first focusable input
+        const firstInput = formElement.querySelector(
+            'input:not([type="hidden"]):not([disabled]), ' +
+            'textarea:not([disabled]), ' +
+            'select:not([disabled]), ' +
+            '.e-input:not([disabled])'
+        );
+
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+                if (firstInput.tagName === 'INPUT' && firstInput.type === 'text') {
+                    firstInput.select();
+                }
+                console.log('Focused first form element:', firstInput);
+            }, 100);
+            return true;
+        }
+
+        return false;
     }
 };

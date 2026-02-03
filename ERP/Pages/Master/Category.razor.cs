@@ -4,6 +4,7 @@ using ERP.Models.Entities;
 using ERP.Models.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using CategoryEntity = ERP.Models.Entities.Category;
 namespace ERP.Pages.Master
 {
@@ -36,6 +37,7 @@ namespace ERP.Pages.Master
         private UserWiseMenu? currentRights;
 
         private string categoryTypeSearchText = string.Empty;
+        private bool isFormFirstRender = false;
 
         /// <summary>
         /// Initializes the component and loads data
@@ -81,6 +83,35 @@ namespace ERP.Pages.Master
 
         }
 
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            // Setup form navigation and auto-focus when form is shown
+            if (showForm && isFormFirstRender)
+            {
+                isFormFirstRender = false;
+                
+                try
+                {
+                    // Use JavaScript to find and setup the form
+                    await JSRuntime.InvokeVoidAsync("eval", @"
+                        (function() {
+                            const form = document.querySelector('.form-container form');
+                            if (form) {
+                                window.keyboardShortcuts.setupFormNavigation(form);
+                                window.keyboardShortcuts.focusFirstFormElement(form);
+                            }
+                        })();
+                    ");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error setting up form navigation: {ex.Message}");
+                }
+            }
+        }
+
         /// <summary>
         /// Loads all Categorys from the database
         /// </summary>
@@ -110,6 +141,7 @@ namespace ERP.Pages.Master
             categoryTypeSearchText = string.Empty;
 
             showForm = true;
+            isFormFirstRender = true;
         }
 
         /// <summary>
@@ -130,6 +162,7 @@ namespace ERP.Pages.Master
             categoryTypeSearchText = catType?.CatTypeName ?? string.Empty;
             
             showForm = true;
+            isFormFirstRender = true;
         }
 
         /// <summary>
